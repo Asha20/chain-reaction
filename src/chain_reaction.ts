@@ -15,8 +15,26 @@ function countingArray(length: number) {
 	return Array.from({ length }, (_, i) => i);
 }
 
+function assert(condition: unknown, message?: string): asserts condition {
+	if (!condition) {
+		throw new Error(message ?? "Assertion failed.");
+	}
+}
+
 function emptyCell(): EmptyCell {
 	return { type: CellType.Empty };
+}
+
+function mutateEmptyIntoOwned(cell: EmptyCell, owner: number, count: number) {
+	const ownedCell = (cell as unknown) as OwnedCell;
+	ownedCell.type = CellType.Owned;
+	ownedCell.owner = owner;
+	ownedCell.count = count;
+}
+
+function mutateOwnedIntoEmpty(cell: OwnedCell) {
+	const emptyCell = (cell as unknown) as EmptyCell;
+	emptyCell.type = CellType.Empty;
 }
 
 function capacityMatrix(width: number, height: number) {
@@ -86,5 +104,40 @@ export class ChainReaction {
 		this.grid = array(width * height, emptyCell);
 		this.capacity = capacityMatrix(width, height);
 		this.neighbors = neighborMatrix(this.grid, width, height);
+	}
+
+	private getPos(x: number, y: number) {
+		return y * this.width + x;
+	}
+
+	place(x: number, y: number): void {
+		const pos = this.getPos(x, y);
+		const cell = this.grid[pos];
+
+		if (cell === undefined) {
+			throw new Error(`Field (${x}, ${y}) is outside of bounds.`);
+		}
+
+		if (cell.type === CellType.Empty) {
+			mutateEmptyIntoOwned(cell, this.currentPlayer, 1);
+		} else {
+			if (cell.owner !== this.currentPlayer) {
+				throw new Error(`Field (${x}, ${y}) is already taken.`);
+			}
+
+			cell.count += 1;
+		}
+
+		assert(cell.type === CellType.Owned);
+
+		if (cell.count > this.capacity[pos]) {
+			mutateOwnedIntoEmpty(cell);
+			this.explode(pos);
+		}
+	}
+
+	private explode(pos: number): void {
+		// TODO
+		assert(pos);
 	}
 }

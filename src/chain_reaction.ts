@@ -78,7 +78,9 @@ export class ChainReaction {
 	private width: number;
 	private height: number;
 	private players: number;
+	private playerScore: number[];
 	private currentPlayer: number;
+	private turn: number;
 	private grid: Cell[];
 	private neighbors: Array<Array<{ pos: number; cell: Cell }>>;
 
@@ -87,9 +89,11 @@ export class ChainReaction {
 		this.height = height;
 		this.players = players;
 		this.currentPlayer = 0;
+		this.turn = 0;
 
 		this.grid = array(width * height, Cell.empty);
 		this.neighbors = neighborMatrix(this.grid, width, height);
+		this.playerScore = array(players, () => 0);
 	}
 
 	private getPos(x: number, y: number) {
@@ -103,9 +107,29 @@ export class ChainReaction {
 			: cell.count >= this.neighbors[pos].length;
 	}
 
+	isActive(): boolean {
+		const alivePlayerCount = this.playerScore.filter(x => x > 0).length;
+
+		// Let each player play one turn. After that, the game is finished
+		// when only a single player has cells on the board.
+		return this.turn <= alivePlayerCount ? true : alivePlayerCount > 1;
+	}
+
+	winner(): number {
+		if (this.isActive()) {
+			throw new Error("Game is still active.");
+		}
+
+		return this.playerScore.findIndex(x => x > 0);
+	}
+
 	place(x: number, y: number): void {
 		const pos = this.getPos(x, y);
 		const cell = this.grid[pos];
+
+		if (!this.isActive()) {
+			throw new Error("Cannot play once game is over.");
+		}
 
 		if (cell === undefined) {
 			throw new Error(`Field (${x}, ${y}) is outside of bounds.`);
@@ -123,10 +147,15 @@ export class ChainReaction {
 
 		assert(cell.type === CellType.Owned);
 
+		this.playerScore[this.currentPlayer] += 1;
+
 		if (this.shouldExplode(pos)) {
 			Cell.toEmpty(cell);
 			this.explode(pos, this.currentPlayer);
 		}
+
+		this.currentPlayer = (this.currentPlayer + 1) % this.players;
+		this.turn += 1;
 	}
 
 	toString(): string {
@@ -158,6 +187,11 @@ export class ChainReaction {
 
 			for (const { pos, cell } of queue) {
 				if (cell.type === CellType.Owned) {
+					if (cell.owner !== player) {
+						this.playerScore[player] += cell.count;
+						this.playerScore[cell.owner] -= cell.count;
+					}
+
 					cell.owner = player;
 					cell.count += 1;
 				} else {
@@ -166,7 +200,7 @@ export class ChainReaction {
 
 				assert(cell.type === CellType.Owned);
 
-				if (this.shouldExplode(pos)) {
+				if (this.shouldExplode(pos) && this.isActive()) {
 					Cell.toEmpty(cell);
 					newQueue.push(...this.neighbors[pos]);
 				}

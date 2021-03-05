@@ -1,6 +1,6 @@
 import { array, assert, countingArray } from "./util";
 
-enum CellType {
+export enum CellType {
 	Empty,
 	Owned,
 }
@@ -8,6 +8,10 @@ enum CellType {
 type EmptyCell = { type: CellType.Empty };
 type OwnedCell = { type: CellType.Owned; owner: number; count: number };
 type Cell = EmptyCell | OwnedCell;
+
+interface Hooks {
+	update: Array<() => void>;
+}
 
 /** Contains common functions for working with `Cell` objects. */
 const Cell = {
@@ -75,14 +79,15 @@ function neighborMatrix(cellMatrix: Cell[], width: number, height: number) {
 }
 
 export class ChainReaction {
-	private width: number;
-	private height: number;
-	private players: number;
+	readonly width: number;
+	readonly height: number;
+	readonly players: number;
+	grid: Cell[];
 	private playerScore: number[];
 	private currentPlayer: number;
 	private turn: number;
-	private grid: Cell[];
 	private neighbors: Array<Array<{ pos: number; cell: Cell }>>;
+	private hooks: Hooks;
 
 	constructor(width: number, height: number, players: number) {
 		this.width = width;
@@ -90,6 +95,7 @@ export class ChainReaction {
 		this.players = players;
 		this.currentPlayer = 0;
 		this.turn = 0;
+		this.hooks = { update: [] };
 
 		this.grid = array(width * height, Cell.empty);
 		this.neighbors = neighborMatrix(this.grid, width, height);
@@ -105,6 +111,18 @@ export class ChainReaction {
 		return cell.type === CellType.Empty
 			? true
 			: cell.count >= this.neighbors[pos].length;
+	}
+
+	addHook<K extends keyof Hooks>(
+		event: K,
+		handler: Hooks[K][number],
+	): () => void {
+		this.hooks[event].push(handler);
+
+		return () => {
+			const index = this.hooks[event].indexOf(handler);
+			this.hooks[event].splice(index, 1);
+		};
 	}
 
 	isActive(): boolean {
@@ -146,8 +164,9 @@ export class ChainReaction {
 		}
 
 		assert(cell.type === CellType.Owned);
-
 		this.playerScore[this.currentPlayer] += 1;
+
+		this.hooks.update.forEach(fn => fn());
 
 		if (this.shouldExplode(pos)) {
 			Cell.toEmpty(cell);
@@ -204,6 +223,8 @@ export class ChainReaction {
 					Cell.toEmpty(cell);
 					newQueue.push(...this.neighbors[pos]);
 				}
+
+				this.hooks.update.forEach(fn => fn());
 			}
 
 			queue = newQueue;

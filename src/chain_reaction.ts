@@ -1,3 +1,5 @@
+import { array, assert, countingArray } from "./util";
+
 enum CellType {
 	Empty,
 	Owned,
@@ -7,27 +9,16 @@ type EmptyCell = { type: CellType.Empty };
 type OwnedCell = { type: CellType.Owned; owner: number; count: number };
 type Cell = EmptyCell | OwnedCell;
 
-function array<T>(length: number, fn: (_index: number) => T) {
-	return Array.from({ length }, (_, i) => fn(i));
-}
-
-function countingArray(length: number) {
-	return Array.from({ length }, (_, i) => i);
-}
-
-function assert(condition: unknown, message?: string): asserts condition {
-	if (!condition) {
-		throw new Error(message ?? "Assertion failed.");
-	}
-}
-
+/** Contains common functions for working with `Cell` objects. */
 const Cell = {
+	/** Mutates a `Cell` into an `EmptyCell`. */
 	toEmpty(cell: Cell): EmptyCell {
 		const emptyCell = (cell as unknown) as EmptyCell;
 		emptyCell.type = CellType.Empty;
 		return emptyCell;
 	},
 
+	/** Mutates a `Cell` into an `OwnedCell`. */
 	toOwned(cell: Cell, owner: number, count: number): OwnedCell {
 		const ownedCell = (cell as unknown) as OwnedCell;
 		ownedCell.type = CellType.Owned;
@@ -36,30 +27,23 @@ const Cell = {
 		return ownedCell;
 	},
 
+	/** Creates an `EmptyCell`. */
 	empty(): EmptyCell {
 		return { type: CellType.Empty };
 	},
 };
 
-function capacityMatrix(width: number, height: number) {
-	const MAX_CAPACITY = 4;
-	const matrix = array(width * height, () => MAX_CAPACITY);
-	const getPos = (x: number, y: number) => y * width + x;
-
-	const topRow = countingArray(width).map(x => getPos(x, 0));
-	const bottomRow = countingArray(width).map(x => getPos(x, height - 1));
-	const leftColumn = countingArray(height).map(y => getPos(0, y));
-	const rightColumn = countingArray(height).map(y => getPos(width - 1, y));
-
-	const positions = [...topRow, ...bottomRow, ...leftColumn, ...rightColumn];
-
-	for (const pos of positions) {
-		matrix[pos] -= 1;
-	}
-
-	return matrix;
-}
-
+/**
+ * Creates a matrix from the provided `cellMatrix`. Each field in the
+ * neighbor matrix contains an array of the cells surrounding it. Since
+ * getting a cell's neighbors is a common operation in the game, instead
+ * of recalculating the neighbors of the same cells every time they're
+ * needed, a matrix like this is generated ahead of time.
+ *
+ * Important Note: To prevent neighbor matrix invalidation, cell
+ * references should be preserved. This means that modifying a cell should
+ * be done exclusively in a *mutable* fashion.
+ */
 function neighborMatrix(cellMatrix: Cell[], width: number, height: number) {
 	type XY = { x: number; y: number };
 
@@ -96,7 +80,6 @@ export class ChainReaction {
 	private players: number;
 	private currentPlayer: number;
 	private grid: Cell[];
-	private capacity: number[];
 	private neighbors: Array<Array<{ pos: number; cell: Cell }>>;
 
 	constructor(width: number, height: number, players: number) {
@@ -106,12 +89,18 @@ export class ChainReaction {
 		this.currentPlayer = 0;
 
 		this.grid = array(width * height, Cell.empty);
-		this.capacity = capacityMatrix(width, height);
 		this.neighbors = neighborMatrix(this.grid, width, height);
 	}
 
 	private getPos(x: number, y: number) {
 		return y * this.width + x;
+	}
+
+	private shouldExplode(pos: number) {
+		const cell = this.grid[pos];
+		return cell.type === CellType.Empty
+			? true
+			: cell.count >= this.neighbors[pos].length;
 	}
 
 	place(x: number, y: number): void {
@@ -134,7 +123,7 @@ export class ChainReaction {
 
 		assert(cell.type === CellType.Owned);
 
-		if (cell.count >= this.capacity[pos]) {
+		if (this.shouldExplode(pos)) {
 			Cell.toEmpty(cell);
 			this.explode(pos, this.currentPlayer);
 		}
@@ -177,7 +166,7 @@ export class ChainReaction {
 
 				assert(cell.type === CellType.Owned);
 
-				if (cell.count >= this.capacity[pos]) {
+				if (this.shouldExplode(pos)) {
 					Cell.toEmpty(cell);
 					newQueue.push(...this.neighbors[pos]);
 				}

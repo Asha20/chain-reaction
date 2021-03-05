@@ -1,3 +1,4 @@
-console.log("Test" as any);
+import { ChainReaction } from "./chain_reaction";
 
-throw new Error("Hello there");
+const cr = new ChainReaction(3, 3, 2);
+console.log(cr);

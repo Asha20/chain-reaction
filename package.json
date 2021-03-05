@@ -1,0 +1,57 @@
+{
+	"name": "chain-reaction",
+	"version": "0.0.1",
+	"description": "Chain Reaction simulations in the browser.",
+	"main": "index.js",
+	"scripts": {
+		"build": "webpack --mode production",
+		"watch": "webpack serve",
+		"prettier": "prettier --write",
+		"lint": "eslint --max-warnings=0 --fix src/ --ext .js,.ts"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"lint-staged": {
+		"src/**/*.{js,ts,json,css}": [
+			"npm run prettier"
+		],
+		"src/**/*.{js,ts}": [
+			"npm run lint"
+		]
+	},
+	"keywords": [
+		"chain",
+		"reaction"
+	],
+	"browserslist": [
+		"last 2 Chrome versions",
+		"not dead",
+		">0.25%"
+	],
+	"author": "Vukašin Stepanović <vukasinstepanovic@gmail.com>",
+	"license": "MIT",
+	"devDependencies": {
+		"@babel/core": "^7.13.8",
+		"@babel/preset-env": "^7.13.9",
+		"@babel/preset-typescript": "^7.13.0",
+		"@typescript-eslint/eslint-plugin": "^4.16.1",
+		"@typescript-eslint/parser": "^4.16.1",
+		"babel-loader": "^8.2.2",
+		"clean-webpack-plugin": "^3.0.0",
+		"core-js": "^3.9.1",
+		"eslint": "^7.21.0",
+		"eslint-config-prettier": "^8.1.0",
+		"fork-ts-checker-webpack-plugin": "^6.1.1",
+		"html-webpack-plugin": "^5.2.0",
+		"husky": "4",
+		"lint-staged": "^10.5.4",
+		"prettier": "^2.2.1",
+		"typescript": "^4.2.3",
+		"webpack": "^5.24.3",
+		"webpack-cli": "^4.5.0",
+		"webpack-dev-server": "^3.11.2"
+	}
+}

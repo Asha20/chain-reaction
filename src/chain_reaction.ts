@@ -21,21 +21,25 @@ function assert(condition: unknown, message?: string): asserts condition {
 	}
 }
 
-function emptyCell(): EmptyCell {
-	return { type: CellType.Empty };
-}
+const Cell = {
+	toEmpty(cell: Cell): EmptyCell {
+		const emptyCell = (cell as unknown) as EmptyCell;
+		emptyCell.type = CellType.Empty;
+		return emptyCell;
+	},
 
-function mutateEmptyIntoOwned(cell: EmptyCell, owner: number, count: number) {
-	const ownedCell = (cell as unknown) as OwnedCell;
-	ownedCell.type = CellType.Owned;
-	ownedCell.owner = owner;
-	ownedCell.count = count;
-}
+	toOwned(cell: Cell, owner: number, count: number): OwnedCell {
+		const ownedCell = (cell as unknown) as OwnedCell;
+		ownedCell.type = CellType.Owned;
+		ownedCell.owner = owner;
+		ownedCell.count = count;
+		return ownedCell;
+	},
 
-function mutateOwnedIntoEmpty(cell: OwnedCell) {
-	const emptyCell = (cell as unknown) as EmptyCell;
-	emptyCell.type = CellType.Empty;
-}
+	empty(): EmptyCell {
+		return { type: CellType.Empty };
+	},
+};
 
 function capacityMatrix(width: number, height: number) {
 	const MAX_CAPACITY = 4;
@@ -81,7 +85,7 @@ function neighborMatrix(cellMatrix: Cell[], width: number, height: number) {
 		.map(neighbors)
 		.map(neighbors => neighbors.filter(inBounds))
 		.map(neighbors => neighbors.map(getPos))
-		.map(neighbors => neighbors.map(pos => cellMatrix[pos]));
+		.map(neighbors => neighbors.map(pos => ({ pos, cell: cellMatrix[pos] })));
 
 	return matrix;
 }
@@ -93,7 +97,7 @@ export class ChainReaction {
 	private currentPlayer: number;
 	private grid: Cell[];
 	private capacity: number[];
-	private neighbors: Cell[][];
+	private neighbors: Array<Array<{ pos: number; cell: Cell }>>;
 
 	constructor(width: number, height: number, players: number) {
 		this.width = width;
@@ -101,7 +105,7 @@ export class ChainReaction {
 		this.players = players;
 		this.currentPlayer = 0;
 
-		this.grid = array(width * height, emptyCell);
+		this.grid = array(width * height, Cell.empty);
 		this.capacity = capacityMatrix(width, height);
 		this.neighbors = neighborMatrix(this.grid, width, height);
 	}
@@ -119,7 +123,7 @@ export class ChainReaction {
 		}
 
 		if (cell.type === CellType.Empty) {
-			mutateEmptyIntoOwned(cell, this.currentPlayer, 1);
+			Cell.toOwned(cell, this.currentPlayer, 1);
 		} else {
 			if (cell.owner !== this.currentPlayer) {
 				throw new Error(`Field (${x}, ${y}) is already taken.`);
@@ -130,14 +134,56 @@ export class ChainReaction {
 
 		assert(cell.type === CellType.Owned);
 
-		if (cell.count > this.capacity[pos]) {
-			mutateOwnedIntoEmpty(cell);
-			this.explode(pos);
+		if (cell.count >= this.capacity[pos]) {
+			Cell.toEmpty(cell);
+			this.explode(pos, this.currentPlayer);
 		}
 	}
 
-	private explode(pos: number): void {
-		// TODO
-		assert(pos);
+	toString(): string {
+		let result = "";
+
+		for (let y = 0; y < this.height; y++) {
+			for (let x = 0; x < this.width; x++) {
+				const pos = this.getPos(x, y);
+				const cell = this.grid[pos];
+				if (cell.type === CellType.Empty) {
+					result += "o";
+				} else {
+					result += cell.count;
+				}
+
+				result += " ";
+			}
+			result += "\n";
+		}
+
+		return result;
+	}
+
+	private explode(origin: number, player: number): void {
+		let queue = this.neighbors[origin];
+
+		while (queue.length) {
+			const newQueue: typeof queue = [];
+
+			for (const { pos, cell } of queue) {
+				if (cell.type === CellType.Owned) {
+					cell.owner = player;
+					cell.count += 1;
+				} else {
+					Cell.toOwned(cell, player, 1);
+				}
+
+				assert(cell.type === CellType.Owned);
+
+				if (cell.count >= this.capacity[pos]) {
+					Cell.toEmpty(cell);
+					newQueue.push(...this.neighbors[pos]);
+				}
+			}
+
+			queue = newQueue;
+		}
 	}
 }

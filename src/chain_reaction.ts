@@ -241,7 +241,7 @@ export class ChainReaction {
 
 	private async explode(origin: number, player: number): Promise<void> {
 		let queue = this.neighbors[origin];
-		const cellsToEmpty: Cell[] = [];
+		const criticals = new Set<number>();
 
 		while (queue.length) {
 			const newQueue: typeof queue = [];
@@ -262,18 +262,25 @@ export class ChainReaction {
 				assert(cell.type === CellType.Owned);
 
 				if (this.shouldExplode(pos) && this.isActive()) {
-					cellsToEmpty.push(cell);
-					newQueue.push(...this.neighbors[pos]);
+					criticals.add(pos);
+				}
+			}
+
+			await this.runHooks("update");
+
+			for (const pos of criticals) {
+				newQueue.push(...this.neighbors[pos]);
+				const cell = this.grid[pos];
+				assert(cell.type === CellType.Owned);
+
+				cell.count -= this.neighbors[pos].length;
+				if (cell.count === 0) {
+					Cell.toEmpty(cell);
 				}
 			}
 
 			queue = newQueue;
-			await this.runHooks("update");
-
-			while (cellsToEmpty.length) {
-				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-				Cell.toEmpty(cellsToEmpty.pop()!);
-			}
+			criticals.clear();
 		}
 	}
 }

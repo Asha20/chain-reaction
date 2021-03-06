@@ -1,4 +1,5 @@
 import { ChainReaction, ChainReactionOptions, XY } from "./chain_reaction";
+import { array } from "./util";
 
 export interface GameContext {
 	width: ChainReaction["width"];
@@ -34,15 +35,23 @@ export class Runner {
 		};
 	}
 
-	async run(): Promise<number> {
-		while (this.game.isActive()) {
-			const player = this.players[this.game.currentPlayer];
+	async run(times: number): Promise<number[]> {
+		const tally = array(this.players.length, () => 0);
 
-			const pos = await player.play(this.gameContext);
-			await this.game.place(pos.x, pos.y);
+		while (times--) {
+			while (this.game.isActive()) {
+				const player = this.players[this.game.currentPlayer];
+
+				const pos = await player.play(this.gameContext);
+				await this.game.place(pos.x, pos.y);
+			}
+
+			const winner = this.game.winner();
+			tally[winner] += 1;
+
+			await this.game.reset();
 		}
 
-		const winner = this.game.winner();
-		return winner;
+		return tally;
 	}
 }

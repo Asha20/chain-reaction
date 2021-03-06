@@ -156,6 +156,14 @@ export class ChainReaction {
 		return this.playerScore.findIndex(x => x > 0);
 	}
 
+	async reset(): Promise<void> {
+		this._currentPlayer = 0;
+		this.turn = 0;
+		this.playerScore = this.playerScore.map(() => 0);
+		this.grid.forEach(Cell.toEmpty);
+		await this.runHooks("update");
+	}
+
 	canPlace(x: number, y: number): boolean {
 		const pos = this.getPos(x, y);
 		const cell = this.grid[pos];

@@ -1,17 +1,21 @@
-import { ChainReaction } from "./chain_reaction";
-import { mount } from "./renderer";
+import { Runner, mount, sleep, PlayPos } from "./lib";
 
-const cr = new ChainReaction(3, 3, 2);
+async function main() {
+	const runner = new Runner({
+		width: 3,
+		height: 3,
+		players: [PlayPos({ x: 0, y: 0 }), PlayPos({ x: 2, y: 2 })],
+	});
 
-const canvas = document.createElement("canvas");
-document.body.appendChild(canvas);
-mount(cr, canvas, { colors: ["red", "blue"] });
+	const canvas = document.createElement("canvas");
+	document.body.appendChild(canvas);
+	mount(runner.game, canvas, { colors: ["red", "blue"] });
 
-cr.place(0, 0);
-console.log(cr.toString());
-cr.place(0, 1);
-console.log(cr.toString());
-cr.place(0, 0);
-console.log(cr.toString());
-cr.place(0, 0);
-console.log(cr.toString());
+	runner.game.addHook("update", () => sleep(500));
+
+	const winner = await runner.run();
+
+	console.log(`The winner is ${winner}.`);
+}
+
+main();

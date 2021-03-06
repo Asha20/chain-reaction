@@ -14,3 +14,7 @@ export function assert(
 		throw new Error(message ?? "Assertion failed.");
 	}
 }
+
+export function sleep(ms: number): Promise<void> {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}

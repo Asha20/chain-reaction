@@ -5,12 +5,23 @@ export enum CellType {
 	Owned,
 }
 
+export interface XY {
+	x: number;
+	y: number;
+}
+
+export interface ChainReactionOptions {
+	width: number;
+	height: number;
+	players: number;
+}
+
 type EmptyCell = { type: CellType.Empty };
 type OwnedCell = { type: CellType.Owned; owner: number; count: number };
-type Cell = EmptyCell | OwnedCell;
+export type Cell = EmptyCell | OwnedCell;
 
 interface Hooks {
-	update: Array<() => void>;
+	update: Array<() => void | Promise<void>>;
 }
 
 /** Contains common functions for working with `Cell` objects. */
@@ -49,8 +60,6 @@ const Cell = {
  * be done exclusively in a *mutable* fashion.
  */
 function neighborMatrix(cellMatrix: Cell[], width: number, height: number) {
-	type XY = { x: number; y: number };
-
 	const getXY = (pos: number): XY => ({
 		x: pos % width,
 		y: Math.floor(pos / width),
@@ -83,23 +92,29 @@ export class ChainReaction {
 	readonly height: number;
 	readonly players: number;
 	grid: Cell[];
+	private _currentPlayer: number;
 	private playerScore: number[];
-	private currentPlayer: number;
 	private turn: number;
 	private neighbors: Array<Array<{ pos: number; cell: Cell }>>;
 	private hooks: Hooks;
 
-	constructor(width: number, height: number, players: number) {
+	constructor(options: ChainReactionOptions) {
+		const { width, height, players } = options;
+
 		this.width = width;
 		this.height = height;
 		this.players = players;
-		this.currentPlayer = 0;
+		this._currentPlayer = 0;
 		this.turn = 0;
 		this.hooks = { update: [] };
 
 		this.grid = array(width * height, Cell.empty);
 		this.neighbors = neighborMatrix(this.grid, width, height);
 		this.playerScore = array(players, () => 0);
+	}
+
+	get currentPlayer(): number {
+		return this._currentPlayer;
 	}
 
 	private getPos(x: number, y: number) {
@@ -141,7 +156,7 @@ export class ChainReaction {
 		return this.playerScore.findIndex(x => x > 0);
 	}
 
-	place(x: number, y: number): void {
+	async place(x: number, y: number): Promise<void> {
 		const pos = this.getPos(x, y);
 		const cell = this.grid[pos];
 
@@ -154,9 +169,9 @@ export class ChainReaction {
 		}
 
 		if (cell.type === CellType.Empty) {
-			Cell.toOwned(cell, this.currentPlayer, 1);
+			Cell.toOwned(cell, this._currentPlayer, 1);
 		} else {
-			if (cell.owner !== this.currentPlayer) {
+			if (cell.owner !== this._currentPlayer) {
 				throw new Error(`Field (${x}, ${y}) is already taken.`);
 			}
 
@@ -164,16 +179,16 @@ export class ChainReaction {
 		}
 
 		assert(cell.type === CellType.Owned);
-		this.playerScore[this.currentPlayer] += 1;
+		this.playerScore[this._currentPlayer] += 1;
 
-		this.hooks.update.forEach(fn => fn());
+		await this.runHooks("update");
 
 		if (this.shouldExplode(pos)) {
 			Cell.toEmpty(cell);
-			this.explode(pos, this.currentPlayer);
+			await this.explode(pos, this._currentPlayer);
 		}
 
-		this.currentPlayer = (this.currentPlayer + 1) % this.players;
+		this._currentPlayer = (this._currentPlayer + 1) % this.players;
 		this.turn += 1;
 	}
 
@@ -198,8 +213,13 @@ export class ChainReaction {
 		return result;
 	}
 
-	private explode(origin: number, player: number): void {
+	private runHooks(name: keyof Hooks) {
+		return Promise.all(this.hooks[name].map(fn => fn()));
+	}
+
+	private async explode(origin: number, player: number): Promise<void> {
 		let queue = this.neighbors[origin];
+		const cellsToEmpty: Cell[] = [];
 
 		while (queue.length) {
 			const newQueue: typeof queue = [];
@@ -209,9 +229,9 @@ export class ChainReaction {
 					if (cell.owner !== player) {
 						this.playerScore[player] += cell.count;
 						this.playerScore[cell.owner] -= cell.count;
+						cell.owner = player;
 					}
 
-					cell.owner = player;
 					cell.count += 1;
 				} else {
 					Cell.toOwned(cell, player, 1);
@@ -220,14 +240,18 @@ export class ChainReaction {
 				assert(cell.type === CellType.Owned);
 
 				if (this.shouldExplode(pos) && this.isActive()) {
-					Cell.toEmpty(cell);
+					cellsToEmpty.push(cell);
 					newQueue.push(...this.neighbors[pos]);
 				}
-
-				this.hooks.update.forEach(fn => fn());
 			}
 
 			queue = newQueue;
+			await this.runHooks("update");
+
+			while (cellsToEmpty.length) {
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+				Cell.toEmpty(cellsToEmpty.pop()!);
+			}
 		}
 	}
 }

@@ -21,7 +21,7 @@ type OwnedCell = { type: CellType.Owned; owner: number; count: number };
 export type Cell = EmptyCell | OwnedCell;
 
 interface Hooks {
-	update: Array<() => void | Promise<void>>;
+	update: Array<() => unknown>;
 }
 
 /** Contains common functions for working with `Cell` objects. */
@@ -93,6 +93,7 @@ export class ChainReaction {
 	readonly players: number;
 	grid: Cell[];
 	private _currentPlayer: number;
+	private alivePlayers: number;
 	private playerScore: number[];
 	private turn: number;
 	private neighbors: Array<Array<{ pos: number; cell: Cell }>>;
@@ -105,6 +106,7 @@ export class ChainReaction {
 		this.height = height;
 		this.players = players;
 		this._currentPlayer = 0;
+		this.alivePlayers = 0;
 		this.turn = 0;
 		this.hooks = { update: [] };
 
@@ -141,11 +143,9 @@ export class ChainReaction {
 	}
 
 	isActive(): boolean {
-		const alivePlayerCount = this.playerScore.filter(x => x > 0).length;
-
 		// Let each player play one turn. After that, the game is finished
 		// when only a single player has cells on the board.
-		return this.turn <= alivePlayerCount ? true : alivePlayerCount > 1;
+		return this.turn <= this.alivePlayers ? true : this.alivePlayers > 1;
 	}
 
 	winner(): number {
@@ -159,6 +159,7 @@ export class ChainReaction {
 	async reset(): Promise<void> {
 		this._currentPlayer = 0;
 		this.turn = 0;
+		this.alivePlayers = 0;
 		this.playerScore = this.playerScore.map(() => 0);
 		this.grid.forEach(Cell.toEmpty);
 		await this.runHooks("update");
@@ -176,6 +177,22 @@ export class ChainReaction {
 		}
 
 		return true;
+	}
+
+	private updateScore(player: number, delta: number) {
+		const oldScore = this.playerScore[player];
+		this.playerScore[player] += delta;
+		const newScore = this.playerScore[player];
+
+		assert(newScore >= 0, `Player ${player} cannot have a negative score.`);
+
+		if (!oldScore && newScore) {
+			this.alivePlayers += 1;
+		}
+
+		if (oldScore && !newScore) {
+			this.alivePlayers -= 1;
+		}
 	}
 
 	async place(x: number, y: number): Promise<void> {
@@ -201,7 +218,7 @@ export class ChainReaction {
 		}
 
 		assert(cell.type === CellType.Owned);
-		this.playerScore[this._currentPlayer] += 1;
+		this.updateScore(this.currentPlayer, 1);
 
 		await this.runHooks("update");
 
@@ -249,8 +266,8 @@ export class ChainReaction {
 			for (const { pos, cell } of queue) {
 				if (cell.type === CellType.Owned) {
 					if (cell.owner !== player) {
-						this.playerScore[player] += cell.count;
-						this.playerScore[cell.owner] -= cell.count;
+						this.updateScore(player, cell.count);
+						this.updateScore(cell.owner, -cell.count);
 						cell.owner = player;
 					}
 

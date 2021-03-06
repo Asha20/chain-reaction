@@ -21,7 +21,7 @@ async function main() {
 	runner.game.addHook("update", () => sleep(100));
 
 	console.time("run");
-	const tally = await runner.run(100);
+	const tally = await runner.run(1000);
 	console.timeEnd("run");
 	console.log("Tally:", tally);
 }

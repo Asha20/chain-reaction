@@ -1,20 +1,16 @@
-import { ChainReaction, CellType } from "./chain_reaction";
-
-type XY = { x: number; y: number };
+import { ChainReaction, CellType, XY } from "./chain_reaction";
 
 interface MountOptions {
 	colors: string[];
+	tileSize: number;
 }
-
-const TILE_SIZE = 100;
-
-const tile = (x: number) => x * TILE_SIZE;
 
 export function mount(
 	game: ChainReaction,
 	canvas: HTMLCanvasElement,
 	options: MountOptions,
 ): () => void {
+	const tile = (x: number) => x * options.tileSize;
 	canvas.width = tile(game.width);
 	canvas.height = tile(game.height);
 

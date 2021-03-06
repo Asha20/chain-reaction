@@ -4,10 +4,12 @@ export interface GameContext {
 	width: ChainReaction["width"];
 	height: ChainReaction["height"];
 	grid: ChainReaction["grid"];
+
+	canPlace: ChainReaction["canPlace"];
 }
 
 export interface Player {
-	play(context: GameContext): XY;
+	play(context: GameContext): XY | Promise<XY>;
 }
 
 interface RunnerOptions extends Omit<ChainReactionOptions, "players"> {
@@ -24,14 +26,19 @@ export class Runner {
 
 		this.players = players;
 		this.game = new ChainReaction({ width, height, players: players.length });
-		this.gameContext = { width: width, height: height, grid: this.game.grid };
+		this.gameContext = {
+			width: width,
+			height: height,
+			grid: this.game.grid,
+			canPlace: this.game.canPlace.bind(this.game),
+		};
 	}
 
 	async run(): Promise<number> {
 		while (this.game.isActive()) {
 			const player = this.players[this.game.currentPlayer];
 
-			const pos = player.play(this.gameContext);
+			const pos = await player.play(this.gameContext);
 			await this.game.place(pos.x, pos.y);
 		}
 

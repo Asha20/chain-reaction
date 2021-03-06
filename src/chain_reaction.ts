@@ -156,6 +156,20 @@ export class ChainReaction {
 		return this.playerScore.findIndex(x => x > 0);
 	}
 
+	canPlace(x: number, y: number): boolean {
+		const pos = this.getPos(x, y);
+		const cell = this.grid[pos];
+		if (!cell) {
+			return false;
+		}
+
+		if (cell.type === CellType.Owned) {
+			return cell.owner === this.currentPlayer;
+		}
+
+		return true;
+	}
+
 	async place(x: number, y: number): Promise<void> {
 		const pos = this.getPos(x, y);
 		const cell = this.grid[pos];

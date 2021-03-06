@@ -18,3 +18,12 @@ export function assert(
 export function sleep(ms: number): Promise<void> {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export function waitForEvent<
+	E extends HTMLElement,
+	K extends keyof HTMLElementEventMap
+>(element: E, type: K): Promise<HTMLElementEventMap[K]> {
+	return new Promise<HTMLElementEventMap[K]>(resolve => {
+		element.addEventListener(type, resolve, { once: true });
+	});
+}

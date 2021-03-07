@@ -88,15 +88,34 @@ function neighborMatrix(cellMatrix: Cell[], width: number, height: number) {
 }
 
 export class ChainReaction {
+	/** Width of the board. */
 	readonly width: number;
+
+	/** Height of the board. */
 	readonly height: number;
+
+	/** Number of players. */
 	readonly players: number;
+
+	/** The game board. */
 	grid: Cell[];
+
+	/** The next player to play. */
 	private _currentPlayer: number;
+
+	/** Number of players with cells on the game board. */
 	private alivePlayers: number;
+
+	/** Holds scores for all players. */
 	private playerScore: number[];
+
+	/** Number of moves made so far. */
 	private turn: number;
+
+	/** Neighbor matrix. See `neighborMatrix()`. */
 	private neighbors: Array<Array<{ pos: number; cell: Cell }>>;
+
+	/** Collection of event handlers. */
 	private hooks: Hooks;
 
 	constructor(options: ChainReactionOptions) {
@@ -119,10 +138,12 @@ export class ChainReaction {
 		return this._currentPlayer;
 	}
 
+	/** Converts a 2D position into a 1D position. */
 	private getPos(x: number, y: number) {
 		return y * this.width + x;
 	}
 
+	/** Tells whether the cell at the given position should explode. */
 	private shouldExplode(pos: number) {
 		const cell = this.grid[pos];
 		return cell.type === CellType.Empty
@@ -130,6 +151,11 @@ export class ChainReaction {
 			: cell.count >= this.neighbors[pos].length;
 	}
 
+	/**
+	 * Adds an event handler for the given event.
+	 *
+	 * @returns An unsubscribe function.
+	 */
 	addHook<K extends keyof Hooks>(
 		event: K,
 		handler: Hooks[K][number],
@@ -142,12 +168,14 @@ export class ChainReaction {
 		};
 	}
 
+	/** Tells whether the game is finished. */
 	isActive(): boolean {
 		// Let each player play one turn. After that, the game is finished
 		// when only a single player has cells on the board.
 		return this.turn <= this.alivePlayers ? true : this.alivePlayers > 1;
 	}
 
+	/** Returns the winner if the game is finished. */
 	winner(): number {
 		if (this.isActive()) {
 			throw new Error("Game is still active.");
@@ -156,6 +184,7 @@ export class ChainReaction {
 		return this.playerScore.findIndex(x => x > 0);
 	}
 
+	/** Mutates the game object into its original, unaltered state. */
 	async reset(): Promise<void> {
 		this._currentPlayer = 0;
 		this.turn = 0;
@@ -165,6 +194,7 @@ export class ChainReaction {
 		await this.runHooks("update");
 	}
 
+	/** Tells whether a cell can be placed at the given position. */
 	canPlace(x: number, y: number): boolean {
 		const pos = this.getPos(x, y);
 		const cell = this.grid[pos];
@@ -179,6 +209,9 @@ export class ChainReaction {
 		return true;
 	}
 
+	/** Updates a player's score while also keeping track of whether the
+	 *  player in question has any remaining alive cells.
+	 */
 	private updateScore(player: number, delta: number) {
 		const oldScore = this.playerScore[player];
 		this.playerScore[player] += delta;
@@ -195,6 +228,7 @@ export class ChainReaction {
 		}
 	}
 
+	/** Attempts to place a cell at the given position. */
 	async place(x: number, y: number): Promise<void> {
 		const pos = this.getPos(x, y);
 		const cell = this.grid[pos];
@@ -252,12 +286,35 @@ export class ChainReaction {
 		return result;
 	}
 
+	/** Runs all event handlers for the given event. */
 	private runHooks(name: keyof Hooks) {
 		return Promise.all(this.hooks[name].map(fn => fn()));
 	}
 
+	/** Given a cell that has reached critical mass, splits
+	 *  the cell and takes over the neighboring cells. This
+	 *  process then repeats recursively as long as any of
+	 *  the neighboring cells also have critical mass.
+	 */
 	private async explode(origin: number, player: number): Promise<void> {
 		let queue = this.neighbors[origin];
+
+		/** Set of cell positions whose cells have reached critical mass.
+		 *  It is important that this collection is a set and not an array
+		 *  to avoid the following scenario: Imagine a 3x3 game board like this:
+		 *  ```
+		 *  0 3 0
+		 *  3 3 0
+		 *  0 0 0
+		 *  ```
+		 *  The two cells at (0, 1) and (1, 0) explode and each send one mass to
+		 *  the cell in the very center of the board. As explosions are processed
+		 *  sequentially, the center cell first has 4, then 5 mass. Since the cell
+		 *  had reached critical mass already at 4, pushing to an array causes the
+		 *  cell to explode twice.
+		 *
+		 *  Using a set solves the issue by forcing cells to explode only once.
+		 */
 		const criticals = new Set<number>();
 
 		while (queue.length) {
@@ -283,6 +340,9 @@ export class ChainReaction {
 				}
 			}
 
+			// The update hook runs before any of the cells are removed,
+			// so that the user has a chance to see which cells had critical
+			// mass before they exploded.
 			await this.runHooks("update");
 
 			for (const pos of criticals) {
@@ -290,6 +350,7 @@ export class ChainReaction {
 				const cell = this.grid[pos];
 				assert(cell.type === CellType.Owned);
 
+				// Make the cell an empty one only if it has no leftover mass.
 				cell.count -= this.neighbors[pos].length;
 				if (cell.count === 0) {
 					Cell.toEmpty(cell);

@@ -5,6 +5,10 @@ interface MountOptions {
 	tileSize: number;
 }
 
+/** Renders the game to a canvas.
+ *
+ * @returns An unsubscribe function.
+ */
 export function mount(
 	game: ChainReaction,
 	canvas: HTMLCanvasElement,

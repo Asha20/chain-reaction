@@ -20,21 +20,28 @@ interface RunnerOptions extends Omit<ChainReactionOptions, "players"> {
 export class Runner {
 	readonly game: ChainReaction;
 	private players: Player[];
-	private gameContext: GameContext;
+
+	/** Gets passed to players so they can decide what their move will be. */
+	private gameContext: Readonly<GameContext>;
 
 	constructor(options: RunnerOptions) {
 		const { width, height, players } = options;
 
 		this.players = players;
 		this.game = new ChainReaction({ width, height, players: players.length });
-		this.gameContext = {
+		this.gameContext = Object.freeze({
 			width: width,
 			height: height,
 			grid: this.game.grid,
 			canPlace: this.game.canPlace.bind(this.game),
-		};
+		});
 	}
 
+	/**
+	 * Plays out the game until completion the given number of times.
+	 *
+	 * @returns An array representing a tally of the players' victories.
+	 */
 	async run(times: number): Promise<number[]> {
 		const tally = array(this.players.length, () => 0);
 

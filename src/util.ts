@@ -2,6 +2,7 @@ export function array<T>(length: number, fn: (_index: number) => T): T[] {
 	return Array.from({ length }, (_, i) => fn(i));
 }
 
+/** Given a length n, creates an array `[0, 1, 2, ..., n - 1]`. */
 export function countingArray(length: number): number[] {
 	return Array.from({ length }, (_, i) => i);
 }
@@ -28,6 +29,7 @@ export function waitForEvent<
 	});
 }
 
+/** Creates a seeded RNG. */
 export function mulberry32(seed: number): () => number {
 	let a = seed;
 

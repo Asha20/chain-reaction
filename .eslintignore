@@ -8,4 +8,4 @@ dist
 coverage
 
 ## don't lint generated wasm-pack code
-src/rust/pkg
+src/game/rust/pkg

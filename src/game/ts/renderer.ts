@@ -1,6 +1,6 @@
 import { ChainReaction, CellType, XY } from "./chain_reaction";
 
-interface MountOptions {
+export interface MountOptions {
 	colors: string[];
 	tileSize: number;
 }

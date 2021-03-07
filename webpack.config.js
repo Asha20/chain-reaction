@@ -63,7 +63,7 @@ module.exports = function (env, argv) {
 				},
 			}),
 			new WasmPackPlugin({
-				crateDirectory: path.resolve(PROJECT_ROOT, "src", "rust"),
+				crateDirectory: path.resolve(PROJECT_ROOT, "src/game/rust"),
 			}),
 
 			production && new CleanWebpackPlugin(),

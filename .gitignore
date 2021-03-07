@@ -124,3 +124,7 @@ dist
 
 ## Project details
 .project/
+
+## For some reason, wasm-pack generates a pkg/ directory with
+## an empty index.js file outside of dist/. Just ignore it for now.
+pkg/

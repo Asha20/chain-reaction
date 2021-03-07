@@ -1,20 +1,24 @@
 /* eslint-env node */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { DefinePlugin } = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
+
+const PROJECT_ROOT = path.resolve(__dirname);
 
 module.exports = function (env, argv) {
 	const production = argv.mode === "production";
 
 	return {
-		context: path.resolve(__dirname),
+		context: PROJECT_ROOT,
 		mode: production ? "production" : "development",
 		entry: "./src/main.ts",
 		devtool: production ? "source-map" : "inline-source-map",
 		output: {
-			path: path.resolve(__dirname, "dist"),
+			path: path.resolve(PROJECT_ROOT, "dist"),
 			filename: production ? "[name].[contenthash].js" : "[name].js",
 			chunkFilename: "[name].[chunkhash].js",
 		},
@@ -30,7 +34,15 @@ module.exports = function (env, argv) {
 					loader: "babel-loader",
 					exclude: /node_modules/,
 				},
+				{
+					test: /\.wasm$/,
+					type: "webassembly/sync",
+				},
 			],
+		},
+
+		experiments: {
+			syncWebAssembly: true,
 		},
 
 		plugins: [
@@ -49,6 +61,9 @@ module.exports = function (env, argv) {
 						syntactic: true,
 					},
 				},
+			}),
+			new WasmPackPlugin({
+				crateDirectory: path.resolve(PROJECT_ROOT, "src", "rust"),
 			}),
 
 			production && new CleanWebpackPlugin(),

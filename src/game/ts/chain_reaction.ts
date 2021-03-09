@@ -118,6 +118,8 @@ export class ChainReaction {
 	/** Collection of event handlers. */
 	private hooks: Hooks;
 
+	private cancelled: boolean;
+
 	constructor(options: ChainReactionOptions) {
 		const { width, height, players } = options;
 
@@ -127,6 +129,7 @@ export class ChainReaction {
 		this._currentPlayer = 0;
 		this.alivePlayers = 0;
 		this.turn = 0;
+		this.cancelled = false;
 		this.hooks = { update: [] };
 
 		this.grid = array(width * height, Cell.empty);
@@ -166,6 +169,10 @@ export class ChainReaction {
 			const index = this.hooks[event].indexOf(handler);
 			this.hooks[event].splice(index, 1);
 		};
+	}
+
+	cancel(): void {
+		this.cancelled = true;
 	}
 
 	/** Tells whether the game is finished. */
@@ -230,6 +237,11 @@ export class ChainReaction {
 
 	/** Attempts to place a cell at the given position. */
 	async place(x: number, y: number): Promise<void> {
+		if (this.cancelled) {
+			await this.reset();
+			return;
+		}
+
 		const pos = this.getPos(x, y);
 		const cell = this.grid[pos];
 
@@ -359,6 +371,11 @@ export class ChainReaction {
 
 			queue = newQueue;
 			criticals.clear();
+
+			if (this.cancelled) {
+				await this.reset();
+				break;
+			}
 		}
 	}
 }

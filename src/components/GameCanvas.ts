@@ -15,11 +15,14 @@ export function GameCanvas(): m.Component<GameCanvasAttrs> {
 		oncreate(vnode) {
 			const { game, options } = vnode.attrs;
 			const canvas = vnode.dom;
+			console.log("mounting", game.width, game.height);
+
 			assert(canvas instanceof HTMLCanvasElement);
 			unsubscribe = mount(game, canvas, options);
 		},
 
 		onremove() {
+			console.log("onremove");
 			unsubscribe?.();
 		},
 

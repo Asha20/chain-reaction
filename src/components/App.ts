@@ -1,18 +1,19 @@
 import m from "mithril";
-import { PlayRandomly, Runner, sleep } from "../game/ts/lib";
+import { PlayRandomly, restrict, Runner, sleep } from "../game/ts/lib";
 import { GameCanvas } from "./GameCanvas";
 
 const colors = ["red", "blue"];
 const tileSize = 100;
+
+const MIN_SIZE = 2;
+const MAX_SIZE = 10;
 
 export function App(): m.Component {
 	let width = 3;
 	let height = 3;
 	const runs = 10;
 
-	let canvasKey = 1;
 	let runner = getRunner();
-
 	let tallyPromise: Promise<number[]> = Promise.resolve([]);
 
 	function getRunner() {
@@ -27,25 +28,33 @@ export function App(): m.Component {
 	}
 
 	async function updateGame() {
-		console.log("updateGame()");
 		runner.cancel();
 		const tally = await tallyPromise;
 		console.log("Tally:", tally);
 
 		runner = getRunner();
 		tallyPromise = runner.run(runs);
-		canvasKey = +!canvasKey;
 		m.redraw();
 	}
 
 	async function setWidth(e: InputEvent) {
-		width = Number((e.target as HTMLInputElement).value);
-		await updateGame();
+		const value = Number((e.target as HTMLInputElement).value);
+		const newWidth = restrict(value, MIN_SIZE, MAX_SIZE);
+
+		if (newWidth !== width) {
+			width = newWidth;
+			await updateGame();
+		}
 	}
 
 	async function setHeight(e: InputEvent) {
-		height = Number((e.target as HTMLInputElement).value);
-		await updateGame();
+		const value = Number((e.target as HTMLInputElement).value);
+		const newHeight = restrict(value, MIN_SIZE, MAX_SIZE);
+
+		if (newHeight !== width) {
+			height = newHeight;
+			await updateGame();
+		}
 	}
 
 	function cancel() {
@@ -62,7 +71,6 @@ export function App(): m.Component {
 				m("p", "My app"),
 				[
 					m(GameCanvas, {
-						key: canvasKey,
 						game: runner.game,
 						options: { colors, tileSize },
 					}),

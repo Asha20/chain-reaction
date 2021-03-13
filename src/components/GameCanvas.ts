@@ -11,18 +11,19 @@ type Nullable<T> = T | null;
 export function GameCanvas(): m.Component<GameCanvasAttrs> {
 	let unsubscribe: Nullable<() => void> = null;
 
-	return {
-		oncreate(vnode) {
-			const { game, options } = vnode.attrs;
-			const canvas = vnode.dom;
-			console.log("mounting", game.width, game.height);
+	function attach(vnode: m.VnodeDOM<GameCanvasAttrs>) {
+		const { game, options } = vnode.attrs;
+		const canvas = vnode.dom;
 
-			assert(canvas instanceof HTMLCanvasElement);
-			unsubscribe = mount(game, canvas, options);
-		},
+		assert(canvas instanceof HTMLCanvasElement);
+		unsubscribe = mount(game, canvas, options);
+	}
+
+	return {
+		oncreate: attach,
+		onupdate: attach,
 
 		onremove() {
-			console.log("onremove");
 			unsubscribe?.();
 		},
 

@@ -173,6 +173,7 @@ export class ChainReaction {
 
 	cancel(): void {
 		this.cancelled = true;
+		this.hooks.update = [];
 	}
 
 	/** Tells whether the game is finished. */

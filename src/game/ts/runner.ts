@@ -25,6 +25,7 @@ export class Runner {
 	private gameContext: Readonly<GameContext>;
 
 	private cancelled: boolean;
+	private running: boolean;
 
 	constructor(options: RunnerOptions) {
 		const { width, height, players } = options;
@@ -38,6 +39,8 @@ export class Runner {
 			grid: this.game.grid,
 			canPlace: this.game.canPlace.bind(this.game),
 		});
+
+		this.running = false;
 	}
 
 	/**
@@ -46,10 +49,14 @@ export class Runner {
 	 * @returns An array representing a tally of the players' victories.
 	 */
 	async run(times: number): Promise<number[]> {
+		if (this.running) {
+			throw new Error("Already running.");
+		}
+
+		this.running = true;
 		const tally = array(this.players.length, () => 0);
 
 		while (times--) {
-			console.log({ times });
 			while (this.game.isActive()) {
 				if (this.cancelled) {
 					await this.game.reset();
@@ -62,12 +69,15 @@ export class Runner {
 				await this.game.place(pos.x, pos.y);
 			}
 
-			const winner = this.game.winner();
-			tally[winner] += 1;
+			if (!this.cancelled) {
+				const winner = this.game.winner();
+				tally[winner] += 1;
+			}
 
 			await this.game.reset();
 		}
 
+		this.running = false;
 		return tally;
 	}
 

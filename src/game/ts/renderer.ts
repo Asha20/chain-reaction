@@ -18,7 +18,7 @@ export function mount(
 	canvas.width = options.width;
 	canvas.height = options.height;
 
-	const tileSize = options.width / game.width;
+	const tileSize = options.width / Math.max(game.width, game.height);
 	const tile = (x: number) => x * tileSize;
 
 	if (options.colors.length < game.players) {

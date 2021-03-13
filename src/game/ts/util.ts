@@ -16,9 +16,11 @@ export function assert(
 	}
 }
 
-export function restrict(x: number, min: number, max: number): number {
-	const boundHigh = Math.min(x, max);
-	return Math.max(boundHigh, min);
+export function restrict(min: number, max: number): (x: number) => number {
+	return function _restrict(value: number) {
+		const boundHigh = Math.min(value, max);
+		return Math.max(boundHigh, min);
+	};
 }
 
 export function sleep(ms: number): Promise<void> {

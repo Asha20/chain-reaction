@@ -1,11 +1,9 @@
 import m from "mithril";
-import { PlayRandomly, restrict, Runner, sleep } from "../game/ts/lib";
+import { PlayRandomly, Runner, sleep } from "../game/ts/lib";
 import { GameCanvas } from "./GameCanvas";
+import { Config } from "./Config";
 
 const colors = ["red", "blue"];
-
-const MIN_SIZE = 2;
-const MAX_SIZE = 10;
 
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 400;
@@ -13,7 +11,7 @@ const CANVAS_HEIGHT = 400;
 export function App(): m.Component {
 	let width = 3;
 	let height = 3;
-	const runs = 10;
+	let runs = 10;
 
 	let runner = getRunner();
 	let tallyPromise: Promise<number[]> = Promise.resolve([]);
@@ -39,24 +37,19 @@ export function App(): m.Component {
 		m.redraw();
 	}
 
-	async function setWidth(e: InputEvent) {
-		const value = Number((e.target as HTMLInputElement).value);
-		const newWidth = restrict(value, MIN_SIZE, MAX_SIZE);
-
-		if (newWidth !== width) {
-			width = newWidth;
-			await updateGame();
-		}
+	function setWidth(value: number) {
+		width = value;
+		return updateGame();
 	}
 
-	async function setHeight(e: InputEvent) {
-		const value = Number((e.target as HTMLInputElement).value);
-		const newHeight = restrict(value, MIN_SIZE, MAX_SIZE);
+	function setHeight(value: number) {
+		height = value;
+		return updateGame();
+	}
 
-		if (newHeight !== width) {
-			height = newHeight;
-			await updateGame();
-		}
+	function setRuns(value: number) {
+		runs = value;
+		return updateGame();
 	}
 
 	function cancel() {
@@ -70,25 +63,20 @@ export function App(): m.Component {
 
 		view() {
 			return m("div", [
-				[
-					m(GameCanvas, {
-						game: runner.game,
-						options: { colors, width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
-					}),
-				],
+				m(GameCanvas, {
+					game: runner.game,
+					options: { colors, width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
+				}),
 
-				m("button", { onclick: cancel }, "Cancel"),
-
-				m(
-					"label",
-					"Width",
-					m("input[type=number]", { value: width, oninput: setWidth }),
-				),
-				m(
-					"label",
-					"Height",
-					m("input[type=number]", { value: height, oninput: setHeight }),
-				),
+				m(Config, {
+					width,
+					height,
+					runs,
+					cancel,
+					setWidth,
+					setHeight,
+					setRuns,
+				}),
 			]);
 		},
 	};

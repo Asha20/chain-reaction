@@ -2,7 +2,8 @@ import { ChainReaction, CellType, XY } from "./chain_reaction";
 
 export interface MountOptions {
 	colors: string[];
-	tileSize: number;
+	width: number;
+	height: number;
 }
 
 /** Renders the game to a canvas.
@@ -14,9 +15,11 @@ export function mount(
 	canvas: HTMLCanvasElement,
 	options: MountOptions,
 ): () => void {
-	const tile = (x: number) => x * options.tileSize;
-	canvas.width = tile(game.width);
-	canvas.height = tile(game.height);
+	canvas.width = options.width;
+	canvas.height = options.height;
+
+	const tileSize = options.width / game.width;
+	const tile = (x: number) => x * tileSize;
 
 	if (options.colors.length < game.players) {
 		throw new Error("Not enough colors provided for all players.");

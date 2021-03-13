@@ -3,10 +3,12 @@ import { PlayRandomly, restrict, Runner, sleep } from "../game/ts/lib";
 import { GameCanvas } from "./GameCanvas";
 
 const colors = ["red", "blue"];
-const tileSize = 100;
 
 const MIN_SIZE = 2;
 const MAX_SIZE = 10;
+
+const CANVAS_WIDTH = 400;
+const CANVAS_HEIGHT = 400;
 
 export function App(): m.Component {
 	let width = 3;
@@ -68,11 +70,10 @@ export function App(): m.Component {
 
 		view() {
 			return m("div", [
-				m("p", "My app"),
 				[
 					m(GameCanvas, {
 						game: runner.game,
-						options: { colors, tileSize },
+						options: { colors, width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
 					}),
 				],
 

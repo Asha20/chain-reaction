@@ -40,7 +40,8 @@ export function mount(
 	const unsubscribeFromUpdate = game.addHook("update", draw);
 
 	function drawGridLines() {
-		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 		for (let x = 1; x < game.width; x++) {
 			ctx.beginPath();

@@ -11,5 +11,5 @@
 		"baseUrl": ".",
 		"downlevelIteration": true
 	},
-	"include": ["src/", ".eslintrc.js"]
+	"include": ["src/", ".eslintrc.js", "webpack.config.js"]
 }

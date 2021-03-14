@@ -3,6 +3,7 @@
 const path = require("path");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { DefinePlugin } = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
@@ -38,6 +39,15 @@ module.exports = function (env, argv) {
 					test: /\.wasm$/,
 					type: "webassembly/sync",
 				},
+				{
+					test: /\.s[ac]ss$/,
+					use: [
+						MiniCssExtractPlugin.loader,
+						"css-loader",
+						production && "postcss-loader",
+						"sass-loader",
+					].filter(Boolean),
+				},
 			],
 		},
 
@@ -65,6 +75,7 @@ module.exports = function (env, argv) {
 			new WasmPackPlugin({
 				crateDirectory: path.resolve(PROJECT_ROOT, "src/game/rust"),
 			}),
+			new MiniCssExtractPlugin(),
 
 			production && new CleanWebpackPlugin(),
 		].filter(Boolean),

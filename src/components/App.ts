@@ -5,9 +5,6 @@ import { Config } from "./Config";
 
 const colors = ["red", "blue"];
 
-const CANVAS_WIDTH = 400;
-const CANVAS_HEIGHT = 400;
-
 export function App(): m.Component {
 	let width = 3;
 	let height = 3;
@@ -59,13 +56,17 @@ export function App(): m.Component {
 	return {
 		oncreate() {
 			tallyPromise = runner.run(runs);
+
+			// Redraw so that mounting inside GameCanvas can use
+			// canvas.getBoundingClientRect() and get proper values from it.
+			m.redraw();
 		},
 
 		view() {
-			return m("div", [
+			return [
 				m(GameCanvas, {
 					game: runner.game,
-					options: { colors, width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
+					options: { colors },
 				}),
 
 				m(Config, {
@@ -77,7 +78,7 @@ export function App(): m.Component {
 					setHeight,
 					setRuns,
 				}),
-			]);
+			];
 		},
 	};
 }

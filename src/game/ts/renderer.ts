@@ -18,8 +18,8 @@ export function mount(
 	canvas.width = options.width;
 	canvas.height = options.height;
 
-	const tileSize = options.width / Math.max(game.width, game.height);
-	const tile = (x: number) => x * tileSize;
+	const tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
+	const tile = (x: number) => Math.floor(x * tileSize);
 
 	if (options.colors.length < game.players) {
 		throw new Error("Not enough colors provided for all players.");
@@ -30,6 +30,8 @@ export function mount(
 		throw new Error("Could not get canvas context.");
 	}
 	const ctx = ctxOrNull;
+
+	ctx.translate(0.5, 0.5);
 	ctx.textAlign = "center";
 	ctx.textBaseline = "middle";
 	ctx.font = `${tile(0.25)}px sans-serif`;

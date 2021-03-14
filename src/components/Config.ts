@@ -62,21 +62,13 @@ export const Config: m.Component<ConfigAttrs> = {
 		return [
 			m("button", { onclick: cancel }, "Cancel"),
 
-			m(
-				"label",
-				"Width",
-				m("input[type=number]", { value: width, oninput: updateWidth }),
-			),
+			m("label", "Width", m("input", { value: width, oninput: updateWidth })),
 			m(
 				"label",
 				"Height",
-				m("input[type=number]", { value: height, oninput: updateHeight }),
+				m("input", { value: height, oninput: updateHeight }),
 			),
-			m(
-				"label",
-				"Runs",
-				m("input[type=number]", { value: runs, oninput: updateRuns }),
-			),
+			m("label", "Runs", m("input", { value: runs, oninput: updateRuns })),
 		];
 	},
 };

@@ -1,14 +1,22 @@
-import { ChainReaction, CellType, XY } from "./chain_reaction";
+import { ChainReaction, CellType, XY, OwnedCell } from "./chain_reaction";
 import { assert, debounce } from "./util";
 
+type PlayerRenderShape = "circle" | "diamond" | "square" | "star";
+
+export interface PlayerRenderOptions {
+	cellColor: string;
+	textColor: string;
+	shape: PlayerRenderShape;
+}
+
 export interface MountOptions {
-	colors: string[];
+	players: PlayerRenderOptions[];
 }
 
 function validateOptions(game: ChainReaction, options: MountOptions) {
 	assert(
-		options.colors.length >= game.players,
-		"Not enough colors provided for all players.",
+		options.players.length >= game.players,
+		`Game has ${game.players} players, but I only know how to render ${options.players.length}.`,
 	);
 }
 
@@ -37,7 +45,11 @@ export function mount(
 		tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
-		ctx.font = `${tile(0.25)}px sans-serif`;
+
+		// While it does say here that the unit is pixel, when drawing the
+		// board the context gets scaled by the tile size, so effectively
+		// this means that the text is 0.25 times the tile size.
+		ctx.font = `0.25px sans-serif`;
 	}
 
 	let tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
@@ -82,7 +94,44 @@ export function mount(
 		ctx.translate(-0.5, -0.5);
 	}
 
+	function drawCell(cx: number, cy: number, cell: OwnedCell) {
+		const { cellColor, textColor, shape } = options.players[cell.owner];
+
+		ctx.fillStyle = cellColor;
+		ctx.beginPath();
+
+		ctx.save();
+		ctx.translate(cx, cy);
+		switch (shape) {
+			case "circle":
+				ctx.arc(0, 0, 0.25, 0, 2 * Math.PI);
+				break;
+
+			case "diamond":
+				ctx.rotate(Math.PI / 4);
+				ctx.rect(-0.25, -0.25, 0.5, 0.5);
+				break;
+
+			case "square":
+				ctx.rect(-0.25, -0.25, 0.5, 0.5);
+				break;
+
+			case "star":
+				ctx.rect(-0.25, -0.25, 0.5, 0.5);
+				ctx.rotate(Math.PI / 4);
+				ctx.rect(-0.25, -0.25, 0.5, 0.5);
+				break;
+		}
+
+		ctx.fill();
+		ctx.restore();
+
+		ctx.fillStyle = textColor;
+		ctx.fillText(String(cell.count), cx, cy);
+	}
+
 	function drawBoard() {
+		ctx.scale(tileSize, tileSize);
 		const getXY = (pos: number): XY => ({
 			x: pos % game.width,
 			y: Math.floor(pos / game.width),
@@ -93,15 +142,10 @@ export function mount(
 			const cell = game.grid[pos];
 
 			if (cell.type === CellType.Owned) {
-				ctx.fillStyle = options.colors[cell.owner];
-
-				ctx.beginPath();
-				ctx.arc(tile(x + 0.5), tile(y + 0.5), tile(0.25), 0, 2 * Math.PI);
-				ctx.fill();
-				ctx.fillStyle = "white";
-				ctx.fillText(String(cell.count), tile(x + 0.5), tile(y + 0.5));
+				drawCell(x + 0.5, y + 0.5, cell);
 			}
 		}
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
 	}
 
 	function draw() {

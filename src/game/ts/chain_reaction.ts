@@ -17,7 +17,7 @@ export interface ChainReactionOptions {
 }
 
 type EmptyCell = { type: CellType.Empty };
-type OwnedCell = { type: CellType.Owned; owner: number; count: number };
+export type OwnedCell = { type: CellType.Owned; owner: number; count: number };
 export type Cell = EmptyCell | OwnedCell;
 
 interface Hooks {

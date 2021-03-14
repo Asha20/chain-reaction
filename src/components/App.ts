@@ -1,9 +1,25 @@
 import m from "mithril";
-import { PlayRandomly, Runner, sleep } from "../game/ts/lib";
+import {
+	PlayerRenderOptions,
+	PlayRandomly,
+	Runner,
+	sleep,
+} from "../game/ts/lib";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 
-const colors = ["red", "blue"];
+const players: PlayerRenderOptions[] = [
+	{
+		cellColor: "red",
+		textColor: "white",
+		shape: "circle",
+	},
+	{
+		cellColor: "blue",
+		textColor: "white",
+		shape: "star",
+	},
+];
 
 export function App(): m.Component {
 	let width = 3;
@@ -64,10 +80,7 @@ export function App(): m.Component {
 
 		view() {
 			return [
-				m(GameCanvas, {
-					game: runner.game,
-					options: { colors },
-				}),
+				m(GameCanvas, { game: runner.game, options: { players } }),
 
 				m(Config, {
 					width,

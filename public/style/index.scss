@@ -1,24 +1,2 @@
-* {
-	box-sizing: border-box;
-}
-
-html,
-body {
-	width: 100%;
-	font-size: 20px;
-}
-
-$max-board-size: 400px;
-
-.board {
-	width: 100vw;
-	height: 100vw;
-
-	display: block;
-	margin: 0 auto;
-
-	border: 1px solid black;
-
-	max-width: $max-board-size;
-	max-height: $max-board-size;
-}
+@use "base";
+@use "components/GameCanvas";

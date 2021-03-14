@@ -3,7 +3,7 @@ import {
 	PlayerRenderOptions,
 	PlayRandomly,
 	Runner,
-	waitForEvent,
+	sleep,
 } from "../game/ts/lib";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
@@ -36,7 +36,7 @@ export function App(): m.Component {
 			players: [PlayRandomly, PlayRandomly],
 		});
 
-		runner.game.addHook("update", () => waitForEvent(document.body, "click"));
+		runner.game.addHook("update", () => sleep(200));
 		return runner;
 	}
 
@@ -65,10 +65,6 @@ export function App(): m.Component {
 		return updateGame();
 	}
 
-	function cancel() {
-		runner.cancel();
-	}
-
 	return {
 		oncreate() {
 			tallyPromise = runner.run(runs);
@@ -82,15 +78,7 @@ export function App(): m.Component {
 			return [
 				m(GameCanvas, { game: runner.game, options: { players } }),
 
-				m(Config, {
-					width,
-					height,
-					runs,
-					cancel,
-					setWidth,
-					setHeight,
-					setRuns,
-				}),
+				m(Config, { setWidth, setHeight, setRuns }),
 			];
 		},
 	};

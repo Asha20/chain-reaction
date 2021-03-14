@@ -3,7 +3,7 @@ import {
 	PlayerRenderOptions,
 	PlayRandomly,
 	Runner,
-	sleep,
+	waitForEvent,
 } from "../game/ts/lib";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
@@ -36,7 +36,7 @@ export function App(): m.Component {
 			players: [PlayRandomly, PlayRandomly],
 		});
 
-		runner.game.addHook("update", () => sleep(200));
+		runner.game.addHook("update", () => waitForEvent(document.body, "click"));
 		return runner;
 	}
 

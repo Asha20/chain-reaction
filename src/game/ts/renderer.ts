@@ -50,6 +50,7 @@ export function mount(
 		// board the context gets scaled by the tile size, so effectively
 		// this means that the text is 0.25 times the tile size.
 		ctx.font = `0.25px sans-serif`;
+		draw();
 	}
 
 	let tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
@@ -94,14 +95,20 @@ export function mount(
 		ctx.translate(-0.5, -0.5);
 	}
 
-	function drawCell(cx: number, cy: number, cell: OwnedCell) {
+	function drawCell(cx: number, cy: number, cell: OwnedCell, pos: number) {
 		const { cellColor, textColor, shape } = options.players[cell.owner];
+
+		ctx.save();
 
 		ctx.fillStyle = cellColor;
 		ctx.beginPath();
+		ctx.translate(cx, cy);
+
+		if (game.shouldExplode(pos)) {
+			ctx.scale(1.25, 1.25);
+		}
 
 		ctx.save();
-		ctx.translate(cx, cy);
 		switch (shape) {
 			case "circle":
 				ctx.arc(0, 0, 0.25, 0, 2 * Math.PI);
@@ -109,17 +116,17 @@ export function mount(
 
 			case "diamond":
 				ctx.rotate(Math.PI / 4);
-				ctx.rect(-0.25, -0.25, 0.5, 0.5);
+				ctx.rect(-0.2, -0.2, 0.4, 0.4);
 				break;
 
 			case "square":
-				ctx.rect(-0.25, -0.25, 0.5, 0.5);
+				ctx.rect(-0.2, -0.2, 0.4, 0.4);
 				break;
 
 			case "star":
-				ctx.rect(-0.25, -0.25, 0.5, 0.5);
+				ctx.rect(-0.2, -0.2, 0.4, 0.4);
 				ctx.rotate(Math.PI / 4);
-				ctx.rect(-0.25, -0.25, 0.5, 0.5);
+				ctx.rect(-0.2, -0.2, 0.4, 0.4);
 				break;
 		}
 
@@ -127,7 +134,8 @@ export function mount(
 		ctx.restore();
 
 		ctx.fillStyle = textColor;
-		ctx.fillText(String(cell.count), cx, cy);
+		ctx.fillText(String(cell.count), 0, 0);
+		ctx.restore();
 	}
 
 	function drawBoard() {
@@ -142,7 +150,7 @@ export function mount(
 			const cell = game.grid[pos];
 
 			if (cell.type === CellType.Owned) {
-				drawCell(x + 0.5, y + 0.5, cell);
+				drawCell(x + 0.5, y + 0.5, cell, pos);
 			}
 		}
 		ctx.setTransform(1, 0, 0, 1, 0, 0);

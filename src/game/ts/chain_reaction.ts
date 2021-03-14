@@ -147,7 +147,7 @@ export class ChainReaction {
 	}
 
 	/** Tells whether the cell at the given position should explode. */
-	private shouldExplode(pos: number) {
+	shouldExplode(pos: number): boolean {
 		const cell = this.grid[pos];
 		return cell.type === CellType.Empty
 			? true

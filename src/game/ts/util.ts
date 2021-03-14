@@ -51,3 +51,16 @@ export function mulberry32(seed: number): () => number {
 
 const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 export const random = mulberry32(seed);
+
+type Fn<TArgs extends unknown[], TReturn = void> = (...args: TArgs) => TReturn;
+
+export function debounce<TArgs extends unknown[]>(
+	ms: number,
+	callback: Fn<TArgs>,
+): Fn<TArgs> {
+	let intervalId = 0;
+	return function _debounce(...args) {
+		clearTimeout(intervalId);
+		intervalId = setTimeout(callback, ms, ...args);
+	};
+}

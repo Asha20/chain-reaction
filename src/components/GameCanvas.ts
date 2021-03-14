@@ -3,7 +3,7 @@ import { assert, ChainReaction, mount, MountOptions } from "../game/ts/lib";
 
 interface GameCanvasAttrs {
 	game: ChainReaction;
-	options: Omit<MountOptions, "width" | "height">;
+	options: MountOptions;
 }
 
 type Nullable<T> = T | null;
@@ -15,13 +15,7 @@ export function GameCanvas(): m.Component<GameCanvasAttrs> {
 		const { game, options } = vnode.attrs;
 		const canvas = vnode.dom;
 		assert(canvas instanceof HTMLCanvasElement);
-
-		const { width, height } = canvas.getBoundingClientRect();
-		canvas.width = width;
-		canvas.height = height;
-
-		const { colors } = options;
-		unsubscribe = mount(game, canvas, { colors, width, height });
+		unsubscribe = mount(game, canvas, options);
 	}
 
 	return {

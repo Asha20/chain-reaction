@@ -1,9 +1,21 @@
 import { ChainReaction, CellType, XY } from "./chain_reaction";
+import { assert, debounce } from "./util";
 
 export interface MountOptions {
 	colors: string[];
-	width: number;
-	height: number;
+}
+
+function validateOptions(game: ChainReaction, options: MountOptions) {
+	assert(
+		options.colors.length >= game.players,
+		"Not enough colors provided for all players.",
+	);
+}
+
+function getContext(canvas: HTMLCanvasElement) {
+	const ctx = canvas.getContext("2d");
+	assert(ctx, "Could not get canvas context.");
+	return ctx;
 }
 
 /** Renders the game to a canvas.
@@ -15,31 +27,42 @@ export function mount(
 	canvas: HTMLCanvasElement,
 	options: MountOptions,
 ): () => void {
-	canvas.width = options.width;
-	canvas.height = options.height;
+	validateOptions(game, options);
+	const ctx = getContext(canvas);
 
-	const tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
-	const tile = (x: number) => Math.floor(x * tileSize);
-
-	if (options.colors.length < game.players) {
-		throw new Error("Not enough colors provided for all players.");
+	function resizeCanvas() {
+		const rect = canvas.getBoundingClientRect();
+		canvas.width = rect.width;
+		canvas.height = rect.height;
+		tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.font = `${tile(0.25)}px sans-serif`;
 	}
 
-	const ctxOrNull = canvas.getContext("2d");
-	if (!ctxOrNull) {
-		throw new Error("Could not get canvas context.");
-	}
-	const ctx = ctxOrNull;
+	let tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
+	const tile = (x: number) => x * tileSize;
 
-	ctx.translate(0.5, 0.5);
-	ctx.textAlign = "center";
-	ctx.textBaseline = "middle";
-	ctx.font = `${tile(0.25)}px sans-serif`;
+	resizeCanvas();
+
+	const onResize = debounce(50, resizeCanvas);
+	window.addEventListener("resize", onResize);
 
 	draw();
 	const unsubscribeFromUpdate = game.addHook("update", draw);
+	const unsubscribeFromResize = () => {
+		window.removeEventListener("resize", onResize);
+	};
+
+	const unsubscribe = () => {
+		unsubscribeFromUpdate();
+		unsubscribeFromResize();
+	};
 
 	function drawGridLines() {
+		// Makes the lines look smoother
+		ctx.translate(0.5, 0.5);
+
 		ctx.fillStyle = "white";
 		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -56,6 +79,7 @@ export function mount(
 			ctx.lineTo(tile(game.width), tile(y));
 			ctx.stroke();
 		}
+		ctx.translate(-0.5, -0.5);
 	}
 
 	function drawBoard() {
@@ -85,5 +109,5 @@ export function mount(
 		drawBoard();
 	}
 
-	return unsubscribeFromUpdate;
+	return unsubscribe;
 }

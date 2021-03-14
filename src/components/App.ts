@@ -1,9 +1,10 @@
 import m from "mithril";
 import {
+	assert,
 	PlayerRenderOptions,
 	PlayRandomly,
 	Runner,
-	sleep,
+	waitForEvent,
 } from "../game/ts/lib";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
@@ -36,7 +37,11 @@ export function App(): m.Component {
 			players: [PlayRandomly, PlayRandomly],
 		});
 
-		runner.game.addHook("update", () => sleep(200));
+		runner.game.addHook("update", () => {
+			const advanceButton = document.getElementById("advance");
+			assert(advanceButton);
+			return waitForEvent(advanceButton, "click");
+		});
 		return runner;
 	}
 
@@ -79,6 +84,8 @@ export function App(): m.Component {
 				m(GameCanvas, { game: runner.game, options: { players } }),
 
 				m(Config, { setWidth, setHeight, setRuns }),
+
+				m("button#advance", "Advance"),
 			];
 		},
 	};

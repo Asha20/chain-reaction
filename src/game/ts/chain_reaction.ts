@@ -120,6 +120,9 @@ export class ChainReaction {
 
 	private cancelled: boolean;
 
+	private cancelPromise: Promise<void>;
+	private cancelPromiseResolve: () => void;
+
 	constructor(options: ChainReactionOptions) {
 		const { width, height, players } = options;
 
@@ -135,6 +138,12 @@ export class ChainReaction {
 		this.grid = array(width * height, Cell.empty);
 		this.neighbors = neighborMatrix(this.grid, width, height);
 		this.playerScore = array(players, () => 0);
+
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
+		this.cancelPromiseResolve = () => {};
+		this.cancelPromise = new Promise(resolve => {
+			this.cancelPromiseResolve = resolve;
+		});
 	}
 
 	get currentPlayer(): number {
@@ -173,6 +182,7 @@ export class ChainReaction {
 
 	cancel(): void {
 		this.cancelled = true;
+		this.cancelPromiseResolve();
 		this.hooks.update = [];
 	}
 
@@ -301,7 +311,9 @@ export class ChainReaction {
 
 	/** Runs all event handlers for the given event. */
 	private runHooks(name: keyof Hooks) {
-		return Promise.all(this.hooks[name].map(fn => fn()));
+		const hooksPromise = Promise.all(this.hooks[name].map(fn => fn()));
+
+		return Promise.race([this.cancelPromise, hooksPromise]);
 	}
 
 	/** Given a cell that has reached critical mass, splits

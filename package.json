@@ -1,8 +1,12 @@
 {
+	"private": true,
 	"name": "chain-reaction",
 	"version": "0.0.1",
 	"description": "Chain Reaction simulations in the browser.",
-	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Asha20/chain-reaction"
+	},
 	"scripts": {
 		"build": "webpack --mode production",
 		"watch": "webpack serve",

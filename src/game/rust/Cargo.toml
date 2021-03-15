@@ -5,6 +5,7 @@ authors = ["Vukašin Stepanović <vukasinstepanovic@gmail.com>"]
 description = "Implementation of the game Chain Reaction."
 license = "MIT"
 edition = "2018"
+repository = "https://github.com/Asha20/chain-reaction"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

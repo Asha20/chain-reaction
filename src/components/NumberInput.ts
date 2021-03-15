@@ -2,6 +2,7 @@ import m from "mithril";
 import { restrict } from "../game/ts/util";
 
 interface NumberInputAttrs {
+	id: string;
 	label: string;
 	defaultValue: number;
 	min: number;
@@ -55,23 +56,23 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 
 	return {
 		view(vnode) {
-			const { label } = vnode.attrs;
+			const { label, id } = vnode.attrs;
 
 			if (editing) {
-				return m(
-					"label",
-					label,
+				return [
+					m("label", { for: id }, label),
 					m("input[type=text].number-input", {
+						id,
 						value,
 						oncreate: ({ dom }) => (dom as HTMLInputElement).focus(),
 						oninput: setValue,
 						onkeypress: saveValueOnEnter,
 						onblur: saveValue,
 					}),
-				);
+				];
 			}
 
-			return m("span", label, m("button", { onclick: setEditing }, value));
+			return [m("span", label), m("button", { onclick: setEditing }, value)];
 		},
 	};
 };

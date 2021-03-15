@@ -9,7 +9,15 @@
 		"allowSyntheticDefaultImports": true,
 		"noFallthroughCasesInSwitch": true,
 		"baseUrl": ".",
-		"downlevelIteration": true
+		"downlevelIteration": true,
+		"paths": {
+			"@game": ["src/game/ts/index.ts"],
+			"@game/*": ["src/game/ts/*"],
+			"@ui": ["src/ui/index.ts"],
+			"@ui/*": ["src/ui/*"],
+			"@public/*": ["public/*"],
+			"@util": ["src/util"]
+		}
 	},
 	"include": ["src/", ".eslintrc.js", "webpack.config.js"]
 }

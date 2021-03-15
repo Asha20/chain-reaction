@@ -1,5 +1,6 @@
 import m from "mithril";
-import { assert, ChainReaction, mount, MountOptions } from "../game/ts/lib";
+import { assert } from "@util";
+import { ChainReaction, mount, MountOptions } from "@game";
 
 interface GameCanvasAttrs {
 	game: ChainReaction;

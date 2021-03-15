@@ -1,5 +1,5 @@
 import m from "mithril";
-import { restrict } from "../game/ts/util";
+import { restrict } from "@ui/util";
 
 interface NumberInputAttrs {
 	id: string;
@@ -46,8 +46,8 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 	}
 
 	function submitValue() {
-		const newValue = restrict(min, max)(Number(value));
-		if (!Number.isNaN(newValue)) {
+		const newValue = restrict(Number(value), min, max);
+		if (value.trim().length && !Number.isNaN(newValue)) {
 			if (newValue !== oldValue) {
 				oldValue = newValue;
 				onChange(newValue);

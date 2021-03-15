@@ -1,4 +1,5 @@
-import { array, assert, countingArray } from "./util";
+import { assert } from "@util";
+import { array, countingArray } from "./util";
 
 export enum CellType {
 	Empty,

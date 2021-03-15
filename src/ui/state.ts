@@ -1,4 +1,4 @@
-import { Immutable } from "./game/ts/util";
+import { Immutable } from "@ui/util";
 
 interface State {
 	game: {

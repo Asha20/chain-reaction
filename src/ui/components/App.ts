@@ -1,14 +1,9 @@
 import m from "mithril";
-import {
-	assert,
-	PlayerRenderOptions,
-	PlayRandomly,
-	Runner,
-	waitForEvent,
-} from "../game/ts/lib";
+import { assert, waitForEvent } from "@util";
+import { PlayerRenderOptions, PlayRandomly, Runner } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
-import { state, actions } from "../state";
+import { state, actions } from "@ui/state";
 
 const players: PlayerRenderOptions[] = [
 	{

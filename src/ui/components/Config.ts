@@ -1,5 +1,5 @@
 import m from "mithril";
-import { state, defaults } from "../state";
+import { state, defaults } from "@ui/state";
 import { NumberInput } from "./NumberInput";
 
 interface ConfigAttrs {

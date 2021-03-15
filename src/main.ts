@@ -1,6 +1,6 @@
-import "../public/style/index.scss";
+import "@public/style/index.scss";
 import m from "mithril";
-import { App } from "./components/App";
+import { App } from "@ui";
 
 const app = document.getElementById("app");
 if (app) {

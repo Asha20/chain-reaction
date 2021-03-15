@@ -7,6 +7,10 @@ export function assert(
 	}
 }
 
+export function array<T>(length: number, fn: (_index: number) => T): T[] {
+	return Array.from({ length }, (_, i) => fn(i));
+}
+
 export function sleep(ms: number): Promise<void> {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }

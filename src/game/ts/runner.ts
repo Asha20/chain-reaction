@@ -1,5 +1,5 @@
 import { ChainReaction, ChainReactionOptions, XY } from "./chain_reaction";
-import { array } from "./util";
+import { array } from "@util";
 
 export interface GameContext {
 	width: ChainReaction["width"];
@@ -52,7 +52,10 @@ export class Runner {
 	 *
 	 * @returns An array representing a tally of the players' victories.
 	 */
-	async run(times: number): Promise<number[]> {
+	async run(
+		times: number,
+		onGameFinished: (winner: number, id: number, tally: number[]) => void,
+	): Promise<number[]> {
 		if (this._running) {
 			throw new Error("Already running.");
 		}
@@ -60,7 +63,7 @@ export class Runner {
 		this._running = true;
 		const tally = array(this.players.length, () => 0);
 
-		while (times--) {
+		for (let i = 1; i <= times; i++) {
 			while (this.game.isActive()) {
 				if (this.cancelled) {
 					await this.game.reset();
@@ -76,6 +79,7 @@ export class Runner {
 			if (!this.cancelled) {
 				const winner = this.game.winner();
 				tally[winner] += 1;
+				onGameFinished(winner, i, tally);
 			}
 
 			await this.game.reset();

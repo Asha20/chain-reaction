@@ -1,9 +1,11 @@
 import m from "mithril";
-import { assert, waitForEvent } from "@util";
+import { assert, sleep } from "@util";
 import { PlayerRenderOptions, PlayRandomly, Runner } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 import { state, actions } from "@ui/state";
+import { Tally } from "./Tally";
+import { array } from "@util";
 
 const players: PlayerRenderOptions[] = [
 	{
@@ -20,7 +22,9 @@ const players: PlayerRenderOptions[] = [
 
 export function App(): m.Component {
 	let runner = getRunner();
-	let tallyPromise: Promise<number[]> = Promise.resolve([]);
+	let endPromise: Promise<void> = Promise.resolve();
+	let tally = array(runner.game.players, () => 0);
+	let gameId = 0;
 
 	function getRunner() {
 		const runner = new Runner({
@@ -32,14 +36,15 @@ export function App(): m.Component {
 		runner.game.addHook("update", () => {
 			const advanceButton = document.getElementById("advance");
 			assert(advanceButton);
-			return waitForEvent(advanceButton, "click");
+			// return waitForEvent(advanceButton, "click");
+			return sleep(200);
 		});
 		return runner;
 	}
 
 	async function updateGame() {
 		runner.cancel();
-		await tallyPromise;
+		await endPromise;
 		actions.setActive(false);
 
 		runner = getRunner();
@@ -61,14 +66,21 @@ export function App(): m.Component {
 		return updateGame();
 	}
 
+	function onGameFinished(winner: number, id: number) {
+		tally[winner] += 1;
+		gameId = id;
+		m.redraw();
+	}
+
 	function runSimulation() {
 		if (!runner.running) {
 			actions.setActive(true);
-			tallyPromise = runner.run(state.game.runs).then(tally => {
+			tally = array(runner.game.players, () => 0);
+			gameId = 0;
+			endPromise = runner.run(state.game.runs, onGameFinished).then(result => {
 				actions.setActive(false);
-				console.log("Tally:", tally);
+				tally = result;
 				m.redraw();
-				return tally;
 			});
 		}
 	}
@@ -85,6 +97,8 @@ export function App(): m.Component {
 				m(GameCanvas, { game: runner.game, options: { players } }),
 
 				m("section.controls", [
+					m(Tally, { tally, gameId, runs: state.game.runs }),
+
 					m(Config, {
 						disabled: state.game.active,
 						setWidth,
@@ -96,6 +110,12 @@ export function App(): m.Component {
 						"button",
 						{ disabled: state.game.active, onclick: runSimulation },
 						"Start",
+					),
+
+					m(
+						"button",
+						{ disabled: !state.game.active, onclick: updateGame },
+						"Cancel",
 					),
 
 					m("button#advance", "Advance"),

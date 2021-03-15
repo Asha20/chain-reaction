@@ -5,6 +5,7 @@ interface NumberInputAttrs {
 	id: string;
 	label: string;
 	defaultValue: number;
+	disabled: boolean;
 	min: number;
 	max: number;
 
@@ -19,8 +20,10 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 	let value = String(attrs.defaultValue);
 	let editing = false;
 
-	function setEditing() {
-		editing = true;
+	function setEditing(disabled: boolean) {
+		if (!disabled) {
+			editing = true;
+		}
 	}
 
 	function setValue(e: InputEvent) {
@@ -56,7 +59,7 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 
 	return {
 		view(vnode) {
-			const { label, id } = vnode.attrs;
+			const { label, disabled, id } = vnode.attrs;
 
 			if (editing) {
 				return [
@@ -72,7 +75,12 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 				];
 			}
 
-			return [m("span", label), m("button", { onclick: setEditing }, value)];
+			return [
+				m("span", label),
+				disabled
+					? m("span.ta-left", value)
+					: m("button", { onclick: () => setEditing(disabled) }, value),
+			];
 		},
 	};
 };

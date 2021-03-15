@@ -45,6 +45,7 @@ export function App(): m.Component {
 	async function updateGame() {
 		runner.cancel();
 		await tallyPromise;
+		actions.setActive(false);
 
 		runner = getRunner();
 		m.redraw();
@@ -67,8 +68,11 @@ export function App(): m.Component {
 
 	function runSimulation() {
 		if (!runner.running) {
+			actions.setActive(true);
 			tallyPromise = runner.run(state.game.runs).then(tally => {
+				actions.setActive(false);
 				console.log("Tally:", tally);
+				m.redraw();
 				return tally;
 			});
 		}
@@ -86,11 +90,16 @@ export function App(): m.Component {
 				m(GameCanvas, { game: runner.game, options: { players } }),
 
 				m("section.controls", [
-					m(Config, { setWidth, setHeight, setRuns }),
+					m(Config, {
+						disabled: state.game.active,
+						setWidth,
+						setHeight,
+						setRuns,
+					}),
 
 					m(
 						"button",
-						{ disabled: runner.running, onclick: runSimulation },
+						{ disabled: state.game.active, onclick: runSimulation },
 						"Start",
 					),
 

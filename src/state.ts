@@ -5,6 +5,7 @@ interface State {
 		width: number;
 		height: number;
 		runs: number;
+		active: boolean;
 	};
 }
 
@@ -14,6 +15,7 @@ function defaultState(): State {
 			width: 3,
 			height: 3,
 			runs: 5,
+			active: false,
 		},
 	};
 }
@@ -51,5 +53,9 @@ export const actions = {
 
 	setRuns(value: number): void {
 		state.game.runs = value;
+	},
+
+	setActive(value: boolean): void {
+		state.game.active = value;
 	},
 };

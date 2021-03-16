@@ -1,5 +1,6 @@
 import { ChainReaction, ChainReactionOptions, XY } from "./chain_reaction";
-import { array } from "@util";
+import { array } from "@common/util";
+import { Hooks, extendHooks } from "@common/hooks";
 
 export interface GameContext {
 	width: ChainReaction["width"];
@@ -26,6 +27,7 @@ export class Runner {
 
 	private cancelled: boolean;
 	private _running: boolean;
+	hooks: Hooks<"update" | "turnDelay" | "explosionDelay">;
 
 	constructor(options: RunnerOptions) {
 		const { width, height, players } = options;
@@ -41,6 +43,7 @@ export class Runner {
 		});
 
 		this._running = false;
+		this.hooks = extendHooks(this.game.hooks, "turnDelay");
 	}
 
 	get running(): boolean {
@@ -74,6 +77,7 @@ export class Runner {
 
 				const pos = await player.play(this.gameContext);
 				await this.game.place(pos.x, pos.y);
+				await this.hooks.run("turnDelay");
 			}
 
 			if (!this.cancelled) {
@@ -92,5 +96,6 @@ export class Runner {
 	cancel(): void {
 		this.cancelled = true;
 		this.game.cancel();
+		this.hooks.clear();
 	}
 }

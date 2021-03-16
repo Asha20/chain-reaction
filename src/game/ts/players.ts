@@ -1,6 +1,6 @@
 import { XY } from "./chain_reaction";
 import { Player } from "./runner";
-import { random, waitForEvent } from "@util";
+import { random, waitForEvent } from "@common/util";
 
 export const PlayRandomly: Player = {
 	play({ width, height, canPlace }) {

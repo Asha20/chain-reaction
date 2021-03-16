@@ -34,7 +34,7 @@ module.exports = function (env, argv) {
 				"@game": path("src/game/ts"),
 				"@ui": path("src/ui"),
 				"@public": path("public"),
-				"@util": path("src/util"),
+				"@common": path("src/common"),
 			},
 		},
 

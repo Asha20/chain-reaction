@@ -1,5 +1,5 @@
 import m from "mithril";
-import { assert } from "@util";
+import { assert } from "@common/util";
 import { ChainReaction, mount, MountOptions } from "@game";
 
 interface GameCanvasAttrs {

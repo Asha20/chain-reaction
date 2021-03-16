@@ -6,6 +6,8 @@ interface State {
 		height: number;
 		runs: number;
 		active: boolean;
+		explosionDelay: number;
+		turnDelay: number;
 	};
 }
 
@@ -16,6 +18,9 @@ function defaultState(): State {
 			height: 3,
 			runs: 5,
 			active: false,
+
+			explosionDelay: 200,
+			turnDelay: 500,
 		},
 	};
 }
@@ -37,6 +42,14 @@ export const defaults = {
 			min: 1,
 			max: 100,
 		},
+		explosionDelay: {
+			min: 50,
+			max: 50_000,
+		},
+		turnDelay: {
+			min: 50,
+			max: 50_000,
+		},
 	},
 };
 
@@ -57,5 +70,13 @@ export const actions = {
 
 	setActive(value: boolean): void {
 		state.game.active = value;
+	},
+
+	setExplosionDelay(value: number): void {
+		state.game.explosionDelay = value;
+	},
+
+	setTurnDelay(value: number): void {
+		state.game.turnDelay = value;
 	},
 };

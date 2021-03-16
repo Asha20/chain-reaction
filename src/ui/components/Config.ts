@@ -8,11 +8,20 @@ interface ConfigAttrs {
 	setWidth(value: number): void;
 	setHeight(value: number): void;
 	setRuns(value: number): void;
+	setExplosionDelay(value: number): void;
+	setTurnDelay(value: number): void;
 }
 
 export const Config: m.Component<ConfigAttrs> = {
 	view(vnode) {
-		const { disabled, setWidth, setHeight, setRuns } = vnode.attrs;
+		const {
+			disabled,
+			setWidth,
+			setHeight,
+			setRuns,
+			setExplosionDelay,
+			setTurnDelay,
+		} = vnode.attrs;
 
 		return m(".config", [
 			m("h2", "Configuration"),
@@ -53,6 +62,32 @@ export const Config: m.Component<ConfigAttrs> = {
 					min: defaults.game.runs.min,
 					max: defaults.game.runs.max,
 					onChange: setRuns,
+				}),
+			),
+
+			m(
+				".config__field",
+				m(NumberInput, {
+					disabled,
+					id: "explosion-delay",
+					label: "Explosion delay:",
+					defaultValue: state.game.explosionDelay,
+					min: defaults.game.explosionDelay.min,
+					max: defaults.game.explosionDelay.max,
+					onChange: setExplosionDelay,
+				}),
+			),
+
+			m(
+				".config__field",
+				m(NumberInput, {
+					disabled,
+					id: "turn-delay",
+					label: "Turn delay:",
+					defaultValue: state.game.turnDelay,
+					min: defaults.game.turnDelay.min,
+					max: defaults.game.turnDelay.max,
+					onChange: setTurnDelay,
 				}),
 			),
 		]);

@@ -1,5 +1,5 @@
 import { ChainReaction, CellType, XY, OwnedCell } from "./chain_reaction";
-import { assert, debounce } from "@util";
+import { assert, debounce } from "@common/util";
 
 type PlayerRenderShape = "circle" | "diamond" | "square" | "star";
 
@@ -62,7 +62,7 @@ export function mount(
 	window.addEventListener("resize", onResize);
 
 	draw();
-	const unsubscribeFromUpdate = game.addHook("update", draw);
+	const unsubscribeFromUpdate = game.hooks.add("update", draw);
 	const unsubscribeFromResize = () => {
 		window.removeEventListener("resize", onResize);
 	};

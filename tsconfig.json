@@ -16,7 +16,7 @@
 			"@ui": ["src/ui/index.ts"],
 			"@ui/*": ["src/ui/*"],
 			"@public/*": ["public/*"],
-			"@util": ["src/util"]
+			"@common/*": ["src/common/*"]
 		}
 	},
 	"include": ["src/", ".eslintrc.js", "webpack.config.js"]

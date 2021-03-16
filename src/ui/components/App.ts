@@ -1,11 +1,10 @@
 import m from "mithril";
-import { assert, sleep } from "@util";
+import { array, sleep } from "@common/util";
 import { PlayerRenderOptions, PlayRandomly, Runner } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 import { state, actions } from "@ui/state";
 import { Tally } from "./Tally";
-import { array } from "@util";
 
 const players: PlayerRenderOptions[] = [
 	{
@@ -33,12 +32,9 @@ export function App(): m.Component {
 			players: [PlayRandomly, PlayRandomly],
 		});
 
-		runner.game.addHook("update", () => {
-			const advanceButton = document.getElementById("advance");
-			assert(advanceButton);
-			// return waitForEvent(advanceButton, "click");
-			return sleep(200);
-		});
+		runner.hooks.add("explosionDelay", () => sleep(state.game.explosionDelay));
+		runner.hooks.add("turnDelay", () => sleep(state.game.turnDelay));
+
 		return runner;
 	}
 
@@ -63,6 +59,16 @@ export function App(): m.Component {
 
 	function setRuns(value: number) {
 		actions.setRuns(value);
+		return updateGame();
+	}
+
+	function setExplosionDelay(value: number) {
+		actions.setExplosionDelay(value);
+		return updateGame();
+	}
+
+	function setTurnDelay(value: number) {
+		actions.setTurnDelay(value);
 		return updateGame();
 	}
 
@@ -107,6 +113,8 @@ export function App(): m.Component {
 						setWidth,
 						setHeight,
 						setRuns,
+						setExplosionDelay,
+						setTurnDelay,
 					}),
 
 					m(

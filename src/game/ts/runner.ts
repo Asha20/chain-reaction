@@ -1,5 +1,5 @@
 import { ChainReaction, ChainReactionOptions, XY } from "./chain_reaction";
-import { array } from "@common/util";
+import { array, CancelPromise } from "@common/util";
 import { Hooks, extendHooks } from "@common/hooks";
 
 export interface GameContext {
@@ -25,8 +25,8 @@ export class Runner {
 	/** Gets passed to players so they can decide what their move will be. */
 	private gameContext: Readonly<GameContext>;
 
-	private cancelled: boolean;
 	private _running: boolean;
+	private cancelPromise: CancelPromise;
 	hooks: Hooks<"update" | "turnDelay" | "explosionDelay">;
 
 	constructor(options: RunnerOptions) {
@@ -34,7 +34,6 @@ export class Runner {
 
 		this.players = players;
 		this.game = new ChainReaction({ width, height, players: players.length });
-		this.cancelled = false;
 		this.gameContext = Object.freeze({
 			width: width,
 			height: height,
@@ -44,6 +43,7 @@ export class Runner {
 
 		this._running = false;
 		this.hooks = extendHooks(this.game.hooks, "turnDelay");
+		this.cancelPromise = CancelPromise();
 	}
 
 	get running(): boolean {
@@ -68,7 +68,7 @@ export class Runner {
 
 		for (let i = 1; i <= times; i++) {
 			while (this.game.isActive()) {
-				if (this.cancelled) {
+				if (this.cancelPromise.cancelled) {
 					await this.game.reset();
 					return tally;
 				}
@@ -77,10 +77,10 @@ export class Runner {
 
 				const pos = await player.play(this.gameContext);
 				await this.game.place(pos.x, pos.y);
-				await this.hooks.run("turnDelay");
+				await this.hooks.run("turnDelay", this.cancelPromise.promise);
 			}
 
-			if (!this.cancelled) {
+			if (!this.cancelPromise.cancelled) {
 				const winner = this.game.winner();
 				tally[winner] += 1;
 				onGameFinished(winner, i, tally);
@@ -94,7 +94,7 @@ export class Runner {
 	}
 
 	cancel(): void {
-		this.cancelled = true;
+		this.cancelPromise.cancel();
 		this.game.cancel();
 		this.hooks.clear();
 	}

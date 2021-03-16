@@ -1,4 +1,4 @@
-import { assert, array } from "@common/util";
+import { assert, array, CancelPromise } from "@common/util";
 import { Hooks } from "@common/hooks";
 import { countingArray } from "./util";
 
@@ -116,10 +116,7 @@ export class ChainReaction {
 	/** Collection of event handlers. */
 	hooks: Hooks<"explosionDelay" | "update">;
 
-	private cancelled: boolean;
-
-	private cancelPromise: Promise<void>;
-	private cancelPromiseResolve: () => void;
+	private cancelPromise: CancelPromise;
 
 	constructor(options: ChainReactionOptions) {
 		const { width, height, players } = options;
@@ -130,18 +127,13 @@ export class ChainReaction {
 		this._currentPlayer = 0;
 		this.alivePlayers = 0;
 		this.turn = 0;
-		this.cancelled = false;
 		this.hooks = Hooks("explosionDelay", "update");
 
 		this.grid = array(width * height, Cell.empty);
 		this.neighbors = neighborMatrix(this.grid, width, height);
 		this.playerScore = array(players, () => 0);
 
-		// eslint-disable-next-line @typescript-eslint/no-empty-function
-		this.cancelPromiseResolve = () => {};
-		this.cancelPromise = new Promise(resolve => {
-			this.cancelPromiseResolve = resolve;
-		});
+		this.cancelPromise = CancelPromise();
 	}
 
 	get currentPlayer(): number {
@@ -162,8 +154,7 @@ export class ChainReaction {
 	}
 
 	cancel(): void {
-		this.cancelled = true;
-		this.cancelPromiseResolve();
+		this.cancelPromise.cancel();
 		this.hooks.clear();
 	}
 
@@ -190,7 +181,7 @@ export class ChainReaction {
 		this.alivePlayers = 0;
 		this.playerScore = this.playerScore.map(() => 0);
 		this.grid.forEach(Cell.toEmpty);
-		await this.hooks.run("update", this.cancelPromise);
+		await this.hooks.run("update", this.cancelPromise.promise);
 	}
 
 	/** Tells whether a cell can be placed at the given position. */
@@ -229,7 +220,7 @@ export class ChainReaction {
 
 	/** Attempts to place a cell at the given position. */
 	async place(x: number, y: number): Promise<void> {
-		if (this.cancelled) {
+		if (this.cancelPromise.cancelled) {
 			await this.reset();
 			return;
 		}
@@ -258,7 +249,7 @@ export class ChainReaction {
 		assert(cell.type === CellType.Owned);
 		this.updateScore(this.currentPlayer, 1);
 
-		await this.hooks.run("update", this.cancelPromise);
+		await this.hooks.run("update", this.cancelPromise.promise);
 
 		if (this.shouldExplode(pos)) {
 			Cell.toEmpty(cell);
@@ -342,8 +333,8 @@ export class ChainReaction {
 			// The update hook runs before any of the cells are removed,
 			// so that the user has a chance to see which cells had critical
 			// mass before they exploded.
-			await this.hooks.run("update", this.cancelPromise);
-			await this.hooks.run("explosionDelay", this.cancelPromise);
+			await this.hooks.run("update", this.cancelPromise.promise);
+			await this.hooks.run("explosionDelay", this.cancelPromise.promise);
 
 			for (const pos of criticals) {
 				newQueue.push(...this.neighbors[pos]);
@@ -360,7 +351,7 @@ export class ChainReaction {
 			queue = newQueue;
 			criticals.clear();
 
-			if (this.cancelled) {
+			if (this.cancelPromise.cancelled) {
 				await this.reset();
 				break;
 			}

@@ -7,6 +7,9 @@ export function assert(
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export function noop(): void {}
+
 export function array<T>(length: number, fn: (_index: number) => T): T[] {
 	return Array.from({ length }, (_, i) => fn(i));
 }
@@ -49,5 +52,32 @@ export function debounce<TArgs extends unknown[]>(
 	return function _debounce(...args) {
 		clearTimeout(intervalId);
 		intervalId = setTimeout(callback, ms, ...args);
+	};
+}
+
+export interface CancelPromise {
+	promise: Promise<void>;
+	cancelled: boolean;
+	cancel(): void;
+}
+
+export function CancelPromise(): CancelPromise {
+	let cancel = noop;
+	let _cancelled = false;
+
+	const promise = new Promise<void>(resolve => {
+		cancel = () => {
+			resolve();
+			_cancelled = true;
+		};
+	});
+
+	assert(cancel !== noop);
+	return {
+		promise,
+		cancel,
+		get cancelled() {
+			return _cancelled;
+		},
 	};
 }

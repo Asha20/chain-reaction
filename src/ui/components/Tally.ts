@@ -12,9 +12,12 @@ export const Tally: m.Component<TallyAttrs> = {
 
 		return [
 			m("h2", "Tally"),
-			m(".config__field", [m("span", "Score:"), m("span", tally.join(" - "))]),
+			m(".config__field--2", [
+				m("span", "Score:"),
+				m("span", tally.join(" - ")),
+			]),
 
-			m(".config__field", [
+			m(".config__field--2", [
 				m("span", "Progress:"),
 				m("span", `${gameId}/${runs}`),
 			]),

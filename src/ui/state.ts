@@ -6,8 +6,11 @@ interface State {
 		height: number;
 		runs: number;
 		active: boolean;
+
 		explosionDelay: number;
 		turnDelay: number;
+
+		manual: boolean;
 	};
 }
 
@@ -21,6 +24,8 @@ function defaultState(): State {
 
 			explosionDelay: 200,
 			turnDelay: 500,
+
+			manual: false,
 		},
 	};
 }
@@ -78,5 +83,9 @@ export const actions = {
 
 	setTurnDelay(value: number): void {
 		state.game.turnDelay = value;
+	},
+
+	toggleManualProgress(): void {
+		state.game.manual = !state.game.manual;
 	},
 };

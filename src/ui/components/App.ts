@@ -1,5 +1,5 @@
 import m from "mithril";
-import { array, sleep } from "@common/util";
+import { array, RepeatablePromise, sleep } from "@common/util";
 import { PlayerRenderOptions, PlayRandomly, Runner } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
@@ -25,6 +25,8 @@ export function App(): m.Component {
 	let tally = array(runner.game.players, () => 0);
 	let gameId = 0;
 
+	const advancePromise = RepeatablePromise();
+
 	function getRunner() {
 		const runner = new Runner({
 			width: state.game.width,
@@ -32,8 +34,16 @@ export function App(): m.Component {
 			players: [PlayRandomly, PlayRandomly],
 		});
 
-		runner.hooks.add("explosionDelay", () => sleep(state.game.explosionDelay));
-		runner.hooks.add("turnDelay", () => sleep(state.game.turnDelay));
+		const explosionDelay = state.game.manual
+			? () => advancePromise.promise
+			: () => sleep(state.game.explosionDelay);
+
+		const turnDelay = state.game.manual
+			? () => advancePromise.promise
+			: () => sleep(state.game.turnDelay);
+
+		runner.hooks.add("explosionDelay", explosionDelay);
+		runner.hooks.add("turnDelay", turnDelay);
 
 		return runner;
 	}
@@ -70,6 +80,19 @@ export function App(): m.Component {
 	function setTurnDelay(value: number) {
 		actions.setTurnDelay(value);
 		return updateGame();
+	}
+
+	function toggleManualProgress() {
+		actions.toggleManualProgress();
+		return updateGame();
+	}
+
+	function advance() {
+		if (!state.game.manual) {
+			return;
+		}
+
+		advancePromise.cancel();
 	}
 
 	function onGameFinished(winner: number, id: number) {
@@ -115,21 +138,36 @@ export function App(): m.Component {
 						setRuns,
 						setExplosionDelay,
 						setTurnDelay,
+						toggleManualProgress,
 					}),
 
 					m(
-						"button",
-						{ disabled: state.game.active, onclick: runSimulation },
-						"Start",
+						".config__field--1",
+						m(
+							"button",
+							{ disabled: state.game.active, onclick: runSimulation },
+							"Start",
+						),
 					),
 
 					m(
-						"button",
-						{ disabled: !state.game.active, onclick: updateGame },
-						"Cancel",
+						".config__field--1",
+						m(
+							"button",
+							{ disabled: !state.game.active, onclick: updateGame },
+							"Cancel",
+						),
 					),
 
-					m("button#advance", "Advance"),
+					state.game.manual &&
+						m(
+							".config__field--1",
+							m(
+								"button",
+								{ disabled: !state.game.active, onclick: advance },
+								"Advance",
+							),
+						),
 				]),
 			];
 		},

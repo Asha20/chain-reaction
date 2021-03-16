@@ -10,6 +10,7 @@ interface ConfigAttrs {
 	setRuns(value: number): void;
 	setExplosionDelay(value: number): void;
 	setTurnDelay(value: number): void;
+	toggleManualProgress(): void;
 }
 
 export const Config: m.Component<ConfigAttrs> = {
@@ -21,13 +22,14 @@ export const Config: m.Component<ConfigAttrs> = {
 			setRuns,
 			setExplosionDelay,
 			setTurnDelay,
+			toggleManualProgress,
 		} = vnode.attrs;
 
 		return m(".config", [
 			m("h2", "Configuration"),
 
 			m(
-				".config__field",
+				".config__field--2",
 				m(NumberInput, {
 					disabled,
 					id: "board-width",
@@ -40,7 +42,7 @@ export const Config: m.Component<ConfigAttrs> = {
 			),
 
 			m(
-				".config__field",
+				".config__field--2",
 				m(NumberInput, {
 					disabled,
 					id: "board-height",
@@ -53,7 +55,7 @@ export const Config: m.Component<ConfigAttrs> = {
 			),
 
 			m(
-				".config__field",
+				".config__field--2",
 				m(NumberInput, {
 					disabled,
 					id: "runs",
@@ -65,31 +67,41 @@ export const Config: m.Component<ConfigAttrs> = {
 				}),
 			),
 
-			m(
-				".config__field",
-				m(NumberInput, {
-					disabled,
-					id: "explosion-delay",
-					label: "Explosion delay:",
-					defaultValue: state.game.explosionDelay,
-					min: defaults.game.explosionDelay.min,
-					max: defaults.game.explosionDelay.max,
-					onChange: setExplosionDelay,
+			m(".config__field--2", [
+				m("label[for=progress-manually]", "Progress manually:"),
+				m("input#progress-manually[type=checkbox]", {
+					checked: state.game.manual,
+					onclick: toggleManualProgress,
 				}),
-			),
+			]),
 
-			m(
-				".config__field",
-				m(NumberInput, {
-					disabled,
-					id: "turn-delay",
-					label: "Turn delay:",
-					defaultValue: state.game.turnDelay,
-					min: defaults.game.turnDelay.min,
-					max: defaults.game.turnDelay.max,
-					onChange: setTurnDelay,
-				}),
-			),
+			!state.game.manual && [
+				m(
+					".config__field--2",
+					m(NumberInput, {
+						disabled,
+						id: "explosion-delay",
+						label: "Explosion delay:",
+						defaultValue: state.game.explosionDelay,
+						min: defaults.game.explosionDelay.min,
+						max: defaults.game.explosionDelay.max,
+						onChange: setExplosionDelay,
+					}),
+				),
+
+				m(
+					".config__field--2",
+					m(NumberInput, {
+						disabled,
+						id: "turn-delay",
+						label: "Turn delay:",
+						defaultValue: state.game.turnDelay,
+						min: defaults.game.turnDelay.min,
+						max: defaults.game.turnDelay.max,
+						onChange: setTurnDelay,
+					}),
+				),
+			],
 		]);
 	},
 };

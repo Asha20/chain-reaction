@@ -61,6 +61,10 @@ export interface CancelPromise {
 	cancel(): void;
 }
 
+/**
+ * Returns a promise and a cancel function. The promise resolves
+ * once the cancel function is called.
+ */
 export function CancelPromise(): CancelPromise {
 	let cancel = noop;
 	let _cancelled = false;
@@ -78,6 +82,35 @@ export function CancelPromise(): CancelPromise {
 		cancel,
 		get cancelled() {
 			return _cancelled;
+		},
+	};
+}
+
+/**
+ * Returns a promise and a cancel function. Once the cancel function
+ * is called, the promise is resolved and the promise and the cancellation
+ * function are replaced with a fresh pair. Getters are used to make the
+ * replacing part invisible to the end user.
+ */
+export function RepeatablePromise(): Omit<CancelPromise, "cancelled"> {
+	let _cancel = noop;
+
+	const repeatingPromise = () =>
+		new Promise<void>(resolve => {
+			_cancel = resolve;
+		}).then(() => {
+			_promise = repeatingPromise();
+		});
+
+	let _promise = repeatingPromise();
+
+	assert(_cancel !== noop);
+	return {
+		get promise() {
+			return _promise;
+		},
+		get cancel() {
+			return _cancel;
 		},
 	};
 }

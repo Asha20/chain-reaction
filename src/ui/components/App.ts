@@ -3,6 +3,7 @@ import { array, RepeatablePromise, sleep } from "@common/util";
 import { PlayerRenderOptions, PlayRandomly, Runner } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
+import { Controls } from "./Controls";
 import { state, actions } from "@ui/state";
 import { Tally } from "./Tally";
 
@@ -123,52 +124,25 @@ export function App(): m.Component {
 
 		view() {
 			return [
-				m(
-					".grid--canvas",
-					m(GameCanvas, { game: runner.game, options: { players } }),
-				),
+				m(GameCanvas, { game: runner.game, options: { players } }),
 
-				m("section.controls.grid--controls", [
-					m(Tally, { tally, gameId, runs: state.game.runs }),
+				m(Controls, {
+					onStart: runSimulation,
+					onCancel: updateGame,
+					onAdvance: advance,
+				}),
 
-					m(Config, {
-						disabled: state.game.active,
-						setWidth,
-						setHeight,
-						setRuns,
-						setExplosionDelay,
-						setTurnDelay,
-						toggleManualProgress,
-					}),
+				m(Tally, { tally, gameId, runs: state.game.runs }),
 
-					m(
-						".config__field--1",
-						m(
-							"button",
-							{ disabled: state.game.active, onclick: runSimulation },
-							"Start",
-						),
-					),
-
-					m(
-						".config__field--1",
-						m(
-							"button",
-							{ disabled: !state.game.active, onclick: updateGame },
-							"Cancel",
-						),
-					),
-
-					state.game.manual &&
-						m(
-							".config__field--1",
-							m(
-								"button",
-								{ disabled: !state.game.active, onclick: advance },
-								"Advance",
-							),
-						),
-				]),
+				m(Config, {
+					disabled: state.game.active,
+					setWidth,
+					setHeight,
+					setRuns,
+					setExplosionDelay,
+					setTurnDelay,
+					toggleManualProgress,
+				}),
 			];
 		},
 	};

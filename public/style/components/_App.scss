@@ -1,21 +1,32 @@
 #app {
 	display: grid;
+	user-select: none;
 
-	grid-template-columns: repeat(2, 50%);
-	grid-template-areas: "canvas controls";
+	column-gap: 20px;
+	row-gap: 20px;
 
-	@media only screen and (max-width: 1024px) {
-		grid-template-areas: "canvas" "controls";
-		grid-template-columns: 100%;
+	grid-template-areas:
+		"canvas"
+		"controls"
+		"tally"
+		"config";
+	grid-template-columns: 1fr;
+
+	@media only screen and (min-width: 768px) {
+		grid-template-areas:
+			"canvas canvas"
+			"controls controls"
+			"tally config";
+		grid-template-columns: repeat(2, 1fr);
 	}
 
 	@media only screen and (min-width: 1024px) {
-		padding: 20px;
+		grid-template-columns: repeat(2, 1fr);
+		grid-template-areas:
+			"canvas    config"
+			"controls  config"
+			"tally     config";
 	}
-}
 
-.controls {
-	user-select: none;
-	max-width: 30em;
-	margin: 0 auto;
+	padding: 20px;
 }

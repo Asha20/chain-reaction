@@ -10,7 +10,7 @@ export const Tally: m.Component<TallyAttrs> = {
 	view(vnode) {
 		const { tally, gameId, runs } = vnode.attrs;
 
-		return [
+		return m(".grid--tally", [
 			m("h2", "Tally"),
 			m(".config__field--2", [
 				m("span", "Score:"),
@@ -21,6 +21,6 @@ export const Tally: m.Component<TallyAttrs> = {
 				m("span", "Progress:"),
 				m("span", `${gameId}/${runs}`),
 			]),
-		];
+		]);
 	},
 };

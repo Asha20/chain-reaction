@@ -5,3 +5,17 @@
 .grid--controls {
 	grid-area: controls;
 }
+
+.grid--tally {
+	grid-area: tally;
+}
+
+.grid--config {
+	grid-area: config;
+}
+
+.grid--controls,
+.grid--tally,
+.grid--config {
+	padding: 0 calc((100% - 20em) / 2);
+}

@@ -25,7 +25,7 @@ export const Config: m.Component<ConfigAttrs> = {
 			toggleManualProgress,
 		} = vnode.attrs;
 
-		return m(".config", [
+		return m(".config.grid--config", [
 			m("h2", "Configuration"),
 
 			m(
@@ -75,7 +75,7 @@ export const Config: m.Component<ConfigAttrs> = {
 				}),
 			]),
 
-			!state.game.manual && [
+			m("div", { hidden: state.game.manual }, [
 				m(
 					".config__field--2",
 					m(NumberInput, {
@@ -101,7 +101,7 @@ export const Config: m.Component<ConfigAttrs> = {
 						onChange: setTurnDelay,
 					}),
 				),
-			],
+			]),
 		]);
 	},
 };

@@ -40,22 +40,22 @@ export const defaults = {
 	game: {
 		width: {
 			min: 2,
-			max: 10,
+			max: 30,
 		},
 		height: {
 			min: 2,
-			max: 10,
+			max: 30,
 		},
 		runs: {
 			min: 1,
-			max: 100,
+			max: 10_000,
 		},
 		explosionDelay: {
-			min: 50,
+			min: 10,
 			max: 50_000,
 		},
 		turnDelay: {
-			min: 50,
+			min: 10,
 			max: 50_000,
 		},
 	},

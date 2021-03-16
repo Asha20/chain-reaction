@@ -94,9 +94,12 @@ export function App(): m.Component {
 
 		view() {
 			return [
-				m(GameCanvas, { game: runner.game, options: { players } }),
+				m(
+					".grid--canvas",
+					m(GameCanvas, { game: runner.game, options: { players } }),
+				),
 
-				m("section.controls", [
+				m("section.controls.grid--controls", [
 					m(Tally, { tally, gameId, runs: state.game.runs }),
 
 					m(Config, {

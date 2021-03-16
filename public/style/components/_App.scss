@@ -1,6 +1,21 @@
+#app {
+	display: grid;
+
+	grid-template-columns: repeat(2, 50%);
+	grid-template-areas: "canvas controls";
+
+	@media only screen and (max-width: 1024px) {
+		grid-template-areas: "canvas" "controls";
+		grid-template-columns: 100%;
+	}
+
+	@media only screen and (min-width: 1024px) {
+		padding: 20px;
+	}
+}
+
 .controls {
 	user-select: none;
 	max-width: 30em;
 	margin: 0 auto;
-	padding: 0 20px;
 }

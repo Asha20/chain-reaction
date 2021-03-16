@@ -78,7 +78,7 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 			return [
 				m("span", label),
 				disabled
-					? m("span.ta-left", value)
+					? m("span", value)
 					: m("button", { onclick: () => setEditing(disabled) }, value),
 			];
 		},

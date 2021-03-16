@@ -11,6 +11,7 @@ interface ConfigAttrs {
 	setExplosionDelay(value: number): void;
 	setTurnDelay(value: number): void;
 	toggleManualProgress(): void;
+	toggleWASM(): void;
 }
 
 export const Config: m.Component<ConfigAttrs> = {
@@ -23,6 +24,7 @@ export const Config: m.Component<ConfigAttrs> = {
 			setExplosionDelay,
 			setTurnDelay,
 			toggleManualProgress,
+			toggleWASM,
 		} = vnode.attrs;
 
 		return m(".config.grid--config", [
@@ -70,12 +72,20 @@ export const Config: m.Component<ConfigAttrs> = {
 			m(".config__field--2", [
 				m("label[for=progress-manually]", "Progress manually:"),
 				m("input#progress-manually[type=checkbox]", {
-					checked: state.game.manual,
+					checked: state.manual,
 					onclick: toggleManualProgress,
 				}),
 			]),
 
-			m("div", { hidden: state.game.manual }, [
+			m(".config__field--2", [
+				m("label[for=use-wasm]", "Use WASM:"),
+				m("input#use-wasm[type=checkbox]", {
+					checked: state.wasm,
+					onclick: toggleWASM,
+				}),
+			]),
+
+			m("div", { hidden: state.manual }, [
 				m(
 					".config__field--2",
 					m(NumberInput, {

@@ -1,6 +1,6 @@
 import m from "mithril";
 import { array, RepeatablePromise, sleep } from "@common/util";
-import { PlayerRenderOptions, PlayRandomly, Runner } from "@game";
+import { PlayerRenderOptions, PlayRandomly, Runner, wasmRunner } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 import { Controls } from "./Controls";
@@ -25,6 +25,7 @@ export function App(): m.Component {
 	let endPromise: Promise<void> = Promise.resolve();
 	let tally = array(runner.game.players, () => 0);
 	let gameId = 0;
+	let worker: Worker | null = null;
 
 	const advancePromise = RepeatablePromise();
 
@@ -35,11 +36,11 @@ export function App(): m.Component {
 			players: [PlayRandomly, PlayRandomly],
 		});
 
-		const explosionDelay = state.game.manual
+		const explosionDelay = state.manual
 			? () => advancePromise.promise
 			: () => sleep(state.game.explosionDelay);
 
-		const turnDelay = state.game.manual
+		const turnDelay = state.manual
 			? () => advancePromise.promise
 			: () => sleep(state.game.turnDelay);
 
@@ -50,6 +51,8 @@ export function App(): m.Component {
 	}
 
 	async function updateGame() {
+		worker?.terminate();
+		worker = null;
 		runner.cancel();
 		await endPromise;
 		actions.setActive(false);
@@ -88,8 +91,13 @@ export function App(): m.Component {
 		return updateGame();
 	}
 
+	function toggleWASM() {
+		actions.toggleWASM();
+		return updateGame();
+	}
+
 	function advance() {
-		if (!state.game.manual) {
+		if (!state.manual) {
 			return;
 		}
 
@@ -103,16 +111,30 @@ export function App(): m.Component {
 	}
 
 	function runSimulation() {
-		if (!runner.running) {
-			actions.setActive(true);
-			tally = array(runner.game.players, () => 0);
-			gameId = 0;
-			endPromise = runner.run(state.game.runs, onGameFinished).then(result => {
+		if (state.game.active) {
+			return;
+		}
+
+		tally = array(runner.game.players, () => 0);
+		gameId = 0;
+
+		actions.setActive(true);
+		if (state.wasm) {
+			endPromise = wasmRunner.run(state.game).then(result => {
 				actions.setActive(false);
 				tally = result;
+				gameId = state.game.runs;
 				m.redraw();
 			});
+			return;
 		}
+
+		endPromise = runner.run(state.game.runs, onGameFinished).then(result => {
+			actions.setActive(false);
+			tally = result;
+
+			m.redraw();
+		});
 	}
 
 	return {
@@ -142,6 +164,7 @@ export function App(): m.Component {
 					setExplosionDelay,
 					setTurnDelay,
 					toggleManualProgress,
+					toggleWASM,
 				}),
 			];
 		},

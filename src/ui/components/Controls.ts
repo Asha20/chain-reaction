@@ -21,7 +21,7 @@ export const Controls: m.Component<ControlAttrs> = {
 			m(
 				"button",
 				{
-					hidden: !state.game.manual,
+					hidden: !state.manual,
 					disabled: !state.game.active,
 					onclick: onAdvance,
 				},

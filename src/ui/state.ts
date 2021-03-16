@@ -5,13 +5,15 @@ interface State {
 		width: number;
 		height: number;
 		runs: number;
-		active: boolean;
+		players: number;
 
+		active: boolean;
 		explosionDelay: number;
 		turnDelay: number;
-
-		manual: boolean;
 	};
+
+	manual: boolean;
+	wasm: boolean;
 }
 
 function defaultState(): State {
@@ -20,13 +22,14 @@ function defaultState(): State {
 			width: 3,
 			height: 3,
 			runs: 5,
+			players: 2,
 			active: false,
 
 			explosionDelay: 200,
 			turnDelay: 500,
-
-			manual: false,
 		},
+		manual: false,
+		wasm: false,
 	};
 }
 
@@ -86,6 +89,10 @@ export const actions = {
 	},
 
 	toggleManualProgress(): void {
-		state.game.manual = !state.game.manual;
+		state.manual = !state.manual;
+	},
+
+	toggleWASM(): void {
+		state.wasm = !state.wasm;
 	},
 };

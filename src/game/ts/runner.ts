@@ -25,8 +25,8 @@ export class Runner {
 	/** Gets passed to players so they can decide what their move will be. */
 	private gameContext: Readonly<GameContext>;
 
-	private _running: boolean;
-	private cancelPromise: CancelPromise;
+	private _running = false;
+	private cancelPromise = CancelPromise();
 	hooks: Hooks<"update" | "turnDelay" | "explosionDelay">;
 
 	constructor(options: RunnerOptions) {
@@ -41,9 +41,7 @@ export class Runner {
 			canPlace: this.game.canPlace.bind(this.game),
 		});
 
-		this._running = false;
 		this.hooks = extendHooks(this.game.hooks, "turnDelay");
-		this.cancelPromise = CancelPromise();
 	}
 
 	get running(): boolean {

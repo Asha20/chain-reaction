@@ -99,24 +99,24 @@ export class ChainReaction {
 	grid: Cell[];
 
 	/** The next player to play. */
-	private _currentPlayer: number;
+	private _currentPlayer = 0;
 
 	/** Number of players with cells on the game board. */
-	private alivePlayers: number;
+	private alivePlayers = 0;
 
 	/** Holds scores for all players. */
 	private playerScore: number[];
 
 	/** Number of moves made so far. */
-	private turn: number;
+	private turn = 0;
 
 	/** Neighbor matrix. See `neighborMatrix()`. */
 	private neighbors: Array<Array<{ pos: number; cell: Cell }>>;
 
 	/** Collection of event handlers. */
-	hooks: Hooks<"explosionDelay" | "update">;
+	hooks = Hooks("explosionDelay", "update");
 
-	private cancelPromise: CancelPromise;
+	private cancelPromise = CancelPromise();
 
 	constructor(options: ChainReactionOptions) {
 		const { width, height, players } = options;
@@ -124,16 +124,10 @@ export class ChainReaction {
 		this.width = width;
 		this.height = height;
 		this.players = players;
-		this._currentPlayer = 0;
-		this.alivePlayers = 0;
-		this.turn = 0;
-		this.hooks = Hooks("explosionDelay", "update");
 
 		this.grid = array(width * height, Cell.empty);
 		this.neighbors = neighborMatrix(this.grid, width, height);
 		this.playerScore = array(players, () => 0);
-
-		this.cancelPromise = CancelPromise();
 	}
 
 	get currentPlayer(): number {

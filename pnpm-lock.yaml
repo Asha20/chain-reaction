@@ -3,6 +3,7 @@ dependencies:
   mithril: 2.0.4
 devDependencies:
   '@babel/core': 7.13.8_@babel+core@7.13.8
+  '@babel/plugin-proposal-class-properties': 7.13.0_@babel+core@7.13.8
   '@babel/plugin-transform-runtime': 7.13.9_@babel+core@7.13.8
   '@babel/preset-env': 7.13.9_@babel+core@7.13.8
   '@babel/preset-typescript': 7.13.0_@babel+core@7.13.8
@@ -42,7 +43,7 @@ packages:
       integrity: sha512-Zt1yodBx1UcyiePMSkWnU4hPqhwq7hGi2nFL1LeA3EUl+q2LQx16MISgJ0+z7dnmgvP9QtIleuETGOiOH1RcIw==
   /@babel/code-frame/7.12.13:
     dependencies:
-      '@babel/highlight': 7.13.8
+      '@babel/highlight': 7.13.10
     dev: true
     resolution:
       integrity: sha512-HV1Cm0Q3ZrpCR93tkWOYiuYIgLxZXZFVG2VgK+MBWjUqZTundupbfx2aXarXuw5Ko5aMcjtJgbSs4vUGBS5v6g==
@@ -108,6 +109,19 @@ packages:
       '@babel/core': ^7.0.0
     resolution:
       integrity: sha512-pBljUGC1y3xKLn1nrx2eAhurLMA8OqBtBP/JwG4U8skN7kf8/aqwwxpV1N6T0e7r6+7uNitIa/fUxPFagSXp3A==
+  /@babel/helper-create-class-features-plugin/7.13.11_@babel+core@7.13.8:
+    dependencies:
+      '@babel/core': 7.13.8_@babel+core@7.13.8
+      '@babel/helper-function-name': 7.12.13
+      '@babel/helper-member-expression-to-functions': 7.13.0
+      '@babel/helper-optimise-call-expression': 7.12.13
+      '@babel/helper-replace-supers': 7.13.0
+      '@babel/helper-split-export-declaration': 7.12.13
+    dev: true
+    peerDependencies:
+      '@babel/core': ^7.0.0
+    resolution:
+      integrity: sha512-ays0I7XYq9xbjCSvT+EvysLgfc3tOkwCULHjrnscGT3A9qD4sk3wXnJ3of0MAWsWGjdinFvajHU2smYuqXKMrw==
   /@babel/helper-create-class-features-plugin/7.13.8_@babel+core@7.13.8:
     dependencies:
       '@babel/core': 7.13.8_@babel+core@7.13.8
@@ -270,6 +284,14 @@ packages:
     dev: true
     resolution:
       integrity: sha512-aan1MeFPxFacZeSz6Ld7YZo5aPuqnKlD7+HZY75xQsueczFccP9A7V05+oe0XpLwHK3oLorPe9eaAUljL7WEaQ==
+  /@babel/highlight/7.13.10:
+    dependencies:
+      '@babel/helper-validator-identifier': 7.12.11
+      chalk: 2.4.2
+      js-tokens: 4.0.0
+    dev: true
+    resolution:
+      integrity: sha512-5aPpe5XQPzflQrFwL1/QoeHkP2MsA4JCntcXHRhEsdsfPVkvPi2w7Qix4iV7t5S/oC9OodGrggd8aco1g3SZFg==
   /@babel/highlight/7.13.8:
     dependencies:
       '@babel/helper-validator-identifier': 7.12.11
@@ -278,6 +300,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-4vrIhfJyfNf+lCtXC2ck1rKSzDwciqF7IWFhXXrSOUC2O5DrVp+w4c6ed4AllTxhTkUP5x2tYj41VaxdVMMRDw==
+  /@babel/parser/7.13.11:
+    dev: true
+    engines:
+      node: '>=6.0.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-PhuoqeHoO9fc4ffMEVk4qb/w/s2iOSWohvbHxLtxui0eBg3Lg5gN1U8wp1V1u61hOWkPQJJyJzGH6Y+grwkq8Q==
   /@babel/parser/7.13.9:
     dev: true
     engines:
@@ -299,7 +328,7 @@ packages:
   /@babel/plugin-proposal-class-properties/7.13.0_@babel+core@7.13.8:
     dependencies:
       '@babel/core': 7.13.8_@babel+core@7.13.8
-      '@babel/helper-create-class-features-plugin': 7.13.8_@babel+core@7.13.8
+      '@babel/helper-create-class-features-plugin': 7.13.11_@babel+core@7.13.8
       '@babel/helper-plugin-utils': 7.13.0
     dev: true
     peerDependencies:
@@ -984,7 +1013,7 @@ packages:
   /@babel/template/7.12.13:
     dependencies:
       '@babel/code-frame': 7.12.13
-      '@babel/parser': 7.13.9
+      '@babel/parser': 7.13.11
       '@babel/types': 7.13.0
     dev: true
     resolution:
@@ -995,7 +1024,7 @@ packages:
       '@babel/generator': 7.13.9
       '@babel/helper-function-name': 7.12.13
       '@babel/helper-split-export-declaration': 7.12.13
-      '@babel/parser': 7.13.9
+      '@babel/parser': 7.13.11
       '@babel/types': 7.13.0
       debug: 4.3.1
       globals: 11.12.0
@@ -7338,6 +7367,7 @@ packages:
       integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 specifiers:
   '@babel/core': ^7.13.8
+  '@babel/plugin-proposal-class-properties': ^7.13.0
   '@babel/plugin-transform-runtime': ^7.13.9
   '@babel/preset-env': ^7.13.9
   '@babel/preset-typescript': ^7.13.0

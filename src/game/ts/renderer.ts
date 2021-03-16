@@ -41,7 +41,8 @@ export function mount(
 	function resizeCanvas() {
 		const rect = canvas.getBoundingClientRect();
 		canvas.width = rect.width;
-		canvas.height = rect.height;
+		canvas.height = rect.width;
+		canvas.style.height = `${canvas.width}px`;
 		tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";

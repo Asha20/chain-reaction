@@ -11,10 +11,20 @@ pub use players::*;
 pub use runner::{Player, Runner};
 
 #[wasm_bindgen]
-pub fn run(width: usize, height: usize, players: usize, times: u32) -> Vec<usize> {
+pub fn run(
+  width: usize,
+  height: usize,
+  players: usize,
+  times: u32,
+  control_buffer: &js_sys::SharedArrayBuffer,
+  tally_buffer: &js_sys::SharedArrayBuffer,
+) -> Vec<usize> {
   let players = vec![PlayRandomly::new(width, height); players];
   let mut runner = Runner::new(width, height, players).unwrap();
-  let tally = runner.run(times).unwrap();
+
+  let control_array = js_sys::Uint32Array::new(control_buffer);
+  let tally_array = js_sys::Uint32Array::new(tally_buffer);
+  let tally = runner.run_js(times, &control_array, &tally_array).unwrap();
 
   tally
 }

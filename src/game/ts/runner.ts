@@ -25,8 +25,8 @@ export class Runner {
 	/** Gets passed to players so they can decide what their move will be. */
 	private gameContext: Readonly<GameContext>;
 
-	private _running = false;
 	private cancelPromise = CancelPromise();
+	private tallyPromise = CancelPromise<number[]>();
 	hooks: Hooks<"update" | "turnDelay" | "explosionDelay">;
 
 	constructor(options: RunnerOptions) {
@@ -44,24 +44,15 @@ export class Runner {
 		this.hooks = extendHooks(this.game.hooks, "turnDelay");
 	}
 
-	get running(): boolean {
-		return this._running;
-	}
-
 	/**
 	 * Plays out the game until completion the given number of times.
 	 *
 	 * @returns An array representing a tally of the players' victories.
 	 */
-	async run(
+	private async _run(
 		times: number,
 		onGameFinished: (winner: number, id: number, tally: number[]) => void,
 	): Promise<number[]> {
-		if (this._running) {
-			throw new Error("Already running.");
-		}
-
-		this._running = true;
 		const tally = array(this.players.length, () => 0);
 
 		for (let i = 1; i <= times; i++) {
@@ -87,13 +78,27 @@ export class Runner {
 			await this.game.reset();
 		}
 
-		this._running = false;
 		return tally;
 	}
 
-	cancel(): void {
-		this.cancelPromise.cancel();
-		this.game.cancel();
-		this.hooks.clear();
+	run(
+		times: number,
+		onGameFinished: (winner: number, id: number, tally: number[]) => void,
+	): CancelPromise<number[]> {
+		this.cancelPromise = CancelPromise();
+		this.tallyPromise = CancelPromise(this._run(times, onGameFinished));
+
+		const oldCancel = this.tallyPromise.cancel;
+		this.tallyPromise.cancel = () => {
+			oldCancel();
+			this.cancelPromise.cancel();
+		};
+
+		void this.tallyPromise.promise.then(() => {
+			this.game.cancel();
+			this.hooks.clear();
+		});
+
+		return this.tallyPromise;
 	}
 }

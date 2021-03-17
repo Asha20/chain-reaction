@@ -27,6 +27,8 @@ export const Config: m.Component<ConfigAttrs> = {
 			toggleWASM,
 		} = vnode.attrs;
 
+		const hideDelayConfig = state.manual || state.wasm;
+
 		return m(".config.grid--config", [
 			m("h2", "Configuration"),
 
@@ -70,14 +72,6 @@ export const Config: m.Component<ConfigAttrs> = {
 			),
 
 			m(".config__field--2", [
-				m("label[for=progress-manually]", "Progress manually:"),
-				m("input#progress-manually[type=checkbox]", {
-					checked: state.manual,
-					onclick: toggleManualProgress,
-				}),
-			]),
-
-			m(".config__field--2", [
 				m("label[for=use-wasm]", "Use WASM:"),
 				m("input#use-wasm[type=checkbox]", {
 					checked: state.wasm,
@@ -85,7 +79,15 @@ export const Config: m.Component<ConfigAttrs> = {
 				}),
 			]),
 
-			m("div", { hidden: state.manual }, [
+			m(".config__field--2", { hidden: state.wasm }, [
+				m("label[for=step-by-step]", "Step by step:"),
+				m("input#step-by-step[type=checkbox]", {
+					checked: state.manual,
+					onclick: toggleManualProgress,
+				}),
+			]),
+
+			m("div", { hidden: hideDelayConfig }, [
 				m(
 					".config__field--2",
 					m(NumberInput, {

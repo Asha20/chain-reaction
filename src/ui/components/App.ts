@@ -1,5 +1,5 @@
 import m from "mithril";
-import { array, RepeatablePromise, sleep } from "@common/util";
+import { array, CancelPromise, RepeatablePromise, sleep } from "@common/util";
 import { PlayerRenderOptions, PlayRandomly, Runner, wasmRunner } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
@@ -22,10 +22,9 @@ const players: PlayerRenderOptions[] = [
 
 export function App(): m.Component {
 	let runner = getRunner();
-	let endPromise: Promise<void> = Promise.resolve();
+	let endPromise = CancelPromise<number[]>();
 	let tally = array(runner.game.players, () => 0);
 	let gameId = 0;
-	let worker: Worker | null = null;
 
 	const advancePromise = RepeatablePromise();
 
@@ -51,13 +50,13 @@ export function App(): m.Component {
 	}
 
 	async function updateGame() {
-		worker?.terminate();
-		worker = null;
-		runner.cancel();
-		await endPromise;
-		actions.setActive(false);
+		endPromise.cancel();
+		await endPromise.promise;
 
-		runner = getRunner();
+		if (!state.wasm) {
+			runner = getRunner();
+		}
+
 		m.redraw();
 	}
 
@@ -110,6 +109,12 @@ export function App(): m.Component {
 		m.redraw();
 	}
 
+	function refresh(newGameId: number, newTally: number[]) {
+		gameId = newGameId;
+		tally = newTally;
+		m.redraw();
+	}
+
 	function runSimulation() {
 		if (state.game.active) {
 			return;
@@ -119,22 +124,17 @@ export function App(): m.Component {
 		gameId = 0;
 
 		actions.setActive(true);
-		if (state.wasm) {
-			endPromise = wasmRunner.run(state.game).then(result => {
+
+		endPromise = state.wasm
+			? wasmRunner.run(state.game, 100, refresh)
+			: runner.run(state.game.runs, onGameFinished);
+
+		void endPromise.promise
+			.then(result => {
 				actions.setActive(false);
 				tally = result;
-				gameId = state.game.runs;
-				m.redraw();
-			});
-			return;
-		}
-
-		endPromise = runner.run(state.game.runs, onGameFinished).then(result => {
-			actions.setActive(false);
-			tally = result;
-
-			m.redraw();
-		});
+			})
+			.then(updateGame);
 	}
 
 	return {

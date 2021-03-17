@@ -55,8 +55,8 @@ export function debounce<TArgs extends unknown[]>(
 	};
 }
 
-export interface CancelPromise {
-	promise: Promise<void>;
+export interface CancelPromise<T = void> {
+	promise: Promise<T>;
 	cancelled: boolean;
 	cancel(): void;
 }
@@ -65,16 +65,26 @@ export interface CancelPromise {
  * Returns a promise and a cancel function. The promise resolves
  * once the cancel function is called.
  */
-export function CancelPromise(): CancelPromise {
+export function CancelPromise<T>(): CancelPromise<T>;
+export function CancelPromise<T>(from: Promise<T>): CancelPromise<T>;
+export function CancelPromise<T = void>(
+	from?: Promise<T>,
+): CancelPromise<T | void> {
 	let cancel = noop;
 	let _cancelled = false;
 
-	const promise = new Promise<void>(resolve => {
-		cancel = () => {
-			resolve();
-			_cancelled = true;
-		};
-	});
+	const promise =
+		from ??
+		new Promise<void>(resolve => {
+			cancel = () => {
+				resolve();
+				_cancelled = true;
+			};
+		});
+
+	if (from) {
+		cancel = () => (_cancelled = true);
+	}
 
 	assert(cancel !== noop);
 	return {

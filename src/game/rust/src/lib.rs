@@ -16,8 +16,8 @@ pub fn run(
   height: usize,
   players: usize,
   times: u32,
-  control_buffer: &js_sys::SharedArrayBuffer,
-  tally_buffer: &js_sys::SharedArrayBuffer,
+  control_buffer: &js_sys::ArrayBuffer,
+  tally_buffer: &js_sys::ArrayBuffer,
 ) -> Vec<usize> {
   let players = vec![PlayRandomly::new(width, height); players];
   let mut runner = Runner::new(width, height, players).unwrap();

@@ -132,6 +132,7 @@ export function App(): m.Component {
 		void endPromise.promise
 			.then(result => {
 				actions.setActive(false);
+				gameId = state.game.runs;
 				tally = result;
 			})
 			.then(updateGame);

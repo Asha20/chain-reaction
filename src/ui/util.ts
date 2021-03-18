@@ -26,3 +26,9 @@ export function restrict(value: number, min: number, max: number): number {
 	const boundHigh = Math.min(value, max);
 	return Math.max(boundHigh, min);
 }
+
+export function classNames(obj: Record<string, boolean>): string {
+	return Object.keys(obj)
+		.map(key => (obj[key] ? key : ""))
+		.join(" ");
+}

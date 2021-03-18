@@ -1,6 +1,7 @@
 import m from "mithril";
 import { state, defaults } from "@ui/state";
 import { NumberInput } from "./NumberInput";
+import { classNames } from "@ui/util";
 
 interface ConfigAttrs {
 	disabled: boolean;
@@ -79,7 +80,7 @@ export const Config: m.Component<ConfigAttrs> = {
 				}),
 			]),
 
-			m(".config__field--2", { hidden: state.wasm }, [
+			m(".config__field--2", { class: classNames({ hide: state.wasm }) }, [
 				m("label[for=step-by-step]", "Step by step:"),
 				m("input#step-by-step[type=checkbox]", {
 					checked: state.manual,
@@ -87,7 +88,7 @@ export const Config: m.Component<ConfigAttrs> = {
 				}),
 			]),
 
-			m("div", { hidden: hideDelayConfig }, [
+			m("div", { class: classNames({ hide: hideDelayConfig }) }, [
 				m(
 					".config__field--2",
 					m(NumberInput, {

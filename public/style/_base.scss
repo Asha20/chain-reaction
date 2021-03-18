@@ -25,3 +25,15 @@ label {
 [hidden] {
 	visibility: hidden;
 }
+
+// Text isn't properly centered on mobile for some reason,
+// so use flex to fix it.
+button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.hide {
+	visibility: hidden;
+}

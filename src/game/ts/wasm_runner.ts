@@ -46,9 +46,7 @@ export function run(
 				executeCallback();
 				resolve(e.data);
 			},
-			{
-				once: true,
-			},
+			{ once: true },
 		);
 	});
 

@@ -1,3 +1,4 @@
+import { classNames } from "@ui/util";
 import m from "mithril";
 import { state } from "../state";
 
@@ -21,7 +22,7 @@ export const Controls: m.Component<ControlAttrs> = {
 			m(
 				"button",
 				{
-					hidden: !state.manual,
+					class: classNames({ hide: !state.manual }),
 					disabled: !state.game.active,
 					onclick: onAdvance,
 				},

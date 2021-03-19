@@ -6,15 +6,30 @@ pub trait Player {
   fn play(&mut self, game: &ChainReaction) -> Result<Pos, &'static str>;
 }
 
-pub struct Runner<F: Player> {
+pub struct Runner<'a, P>
+where
+  P: Player,
+{
   width: usize,
   height: usize,
   game: ChainReaction,
-  players: Vec<F>,
+  players: Vec<P>,
+
+  on_game_finished: Option<Box<dyn Fn(&Vec<usize>, &usize, &u32) + 'a>>,
+  should_stop: Option<Box<dyn Fn() -> bool + 'a>>,
 }
 
-impl<F: Player> Runner<F> {
-  pub fn new(width: usize, height: usize, players: Vec<F>) -> Result<Runner<F>, &'static str> {
+impl<'a, P> Runner<'a, P>
+where
+  P: Player,
+{
+  pub fn new(
+    width: usize,
+    height: usize,
+    players: Vec<P>,
+    on_game_finished: Option<Box<dyn Fn(&Vec<usize>, &usize, &u32) + 'a>>,
+    should_stop: Option<Box<dyn Fn() -> bool + 'a>>,
+  ) -> Result<Runner<'a, P>, &'static str> {
     let game = ChainReaction::new(width, height, players.len())?;
 
     Ok(Runner {
@@ -22,6 +37,8 @@ impl<F: Player> Runner<F> {
       height,
       game,
       players,
+      on_game_finished,
+      should_stop,
     })
   }
 
@@ -56,7 +73,7 @@ impl<F: Player> Runner<F> {
 
   pub fn run(&mut self, times: u32) -> Result<Vec<usize>, &'static str> {
     let mut tally = vec![0; self.players.len()];
-    for _ in 0..times {
+    for id in 1..times + 1 {
       while self.game.active() {
         let player = self.game.current_player();
         let player_move = self.players[player].play(&self.game)?;
@@ -65,6 +82,16 @@ impl<F: Player> Runner<F> {
 
       let winner = self.game.winner()?;
       *tally.get_mut(winner).unwrap() += 1;
+
+      if let Some(on_game_finished) = &self.on_game_finished {
+        on_game_finished(&tally, &winner, &id);
+      }
+
+      if let Some(should_stop) = &self.should_stop {
+        if should_stop() {
+          return Ok(tally);
+        }
+      }
 
       self.game = ChainReaction::new(self.width, self.height, self.players.len())?;
     }

@@ -129,11 +129,12 @@ export function App(): m.Component {
 			? wasmRunner.run(state.game, 100, refresh)
 			: runner.run(state.game.runs, onGameFinished);
 
+		console.time("start");
 		void endPromise.promise
 			.then(result => {
 				actions.setActive(false);
-				gameId = state.game.runs;
 				tally = result;
+				console.timeEnd("start");
 			})
 			.then(updateGame);
 	}

@@ -7,9 +7,9 @@ if (app) {
 	m.mount(app, App);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function printError(e: any) {
-	const msg = `${e.type}: ${e.message};`;
+function printError(e: ErrorEvent | PromiseRejectionEvent) {
+	const reason = e instanceof ErrorEvent ? e.message : e.reason;
+	const msg = `${e.type}: ${reason};`;
 	alert(msg);
 	document.body.appendChild(new Text(msg));
 }

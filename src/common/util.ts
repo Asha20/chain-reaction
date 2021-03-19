@@ -15,7 +15,9 @@ export function array<T>(length: number, fn: (_index: number) => T): T[] {
 }
 
 export function sleep(ms: number): Promise<void> {
-	return new Promise(resolve => setTimeout(resolve, ms));
+	return ms <= 0
+		? Promise.resolve()
+		: new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export function waitForEvent<

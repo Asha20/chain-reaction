@@ -13,6 +13,7 @@ interface ConfigAttrs {
 	setTurnDelay(value: number): void;
 	toggleManualProgress(): void;
 	toggleWASM(): void;
+	togglePvP(): void;
 }
 
 export const Config: m.Component<ConfigAttrs> = {
@@ -26,6 +27,7 @@ export const Config: m.Component<ConfigAttrs> = {
 			setTurnDelay,
 			toggleManualProgress,
 			toggleWASM,
+			togglePvP,
 		} = vnode.attrs;
 
 		const hideDelayConfig = state.manual || state.wasm;
@@ -85,6 +87,14 @@ export const Config: m.Component<ConfigAttrs> = {
 				m("input#step-by-step[type=checkbox]", {
 					checked: state.manual,
 					onclick: toggleManualProgress,
+				}),
+			]),
+
+			m(".config__field--2", { class: classNames({ hide: state.wasm }) }, [
+				m("label[for=pvp]", "PvP:"),
+				m("input#pvp[type=checkbox]", {
+					checked: state.pvp,
+					onclick: togglePvP,
 				}),
 			]),
 

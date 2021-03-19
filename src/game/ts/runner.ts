@@ -10,17 +10,18 @@ export interface GameContext {
 	canPlace: ChainReaction["canPlace"];
 }
 
-export interface Player {
+export interface Playable<T extends string = string> {
+	name: T;
 	play(context: GameContext): XY | Promise<XY>;
 }
 
 interface RunnerOptions extends Omit<ChainReactionOptions, "players"> {
-	players: Player[];
+	players: Playable[];
 }
 
 export class Runner {
 	readonly game: ChainReaction;
-	private players: Player[];
+	private players: Playable[];
 
 	/** Gets passed to players so they can decide what their move will be. */
 	private gameContext: Readonly<GameContext>;
@@ -64,9 +65,15 @@ export class Runner {
 
 				const player = this.players[this.game.currentPlayer];
 
-				const pos = await player.play(this.gameContext);
-				await this.game.place(pos.x, pos.y);
-				await this.hooks.run("turnDelay", this.cancelPromise.promise);
+				const pos = await Promise.race([
+					player.play(this.gameContext),
+					this.cancelPromise.promise as Promise<void>,
+				]);
+
+				if (pos) {
+					await this.game.place(pos.x, pos.y);
+					await this.hooks.run("turnDelay", this.cancelPromise.promise);
+				}
 			}
 
 			if (!this.cancelPromise.cancelled) {
@@ -88,7 +95,7 @@ export class Runner {
 		this.cancelPromise = CancelPromise();
 		this.tallyPromise = CancelPromise(this._run(times, onGameFinished));
 
-		const oldCancel = this.tallyPromise.cancel;
+		const oldCancel = this.tallyPromise.cancel.bind(this.tallyPromise);
 		this.tallyPromise.cancel = () => {
 			oldCancel();
 			this.cancelPromise.cancel();

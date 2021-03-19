@@ -14,6 +14,7 @@ interface State {
 
 	manual: boolean;
 	wasm: boolean;
+	pvp: boolean;
 }
 
 function defaultState(): State {
@@ -30,6 +31,7 @@ function defaultState(): State {
 		},
 		manual: false,
 		wasm: false,
+		pvp: false,
 	};
 }
 
@@ -94,5 +96,9 @@ export const actions = {
 
 	toggleWASM(): void {
 		state.wasm = !state.wasm;
+	},
+
+	togglePvP(): void {
+		state.pvp = !state.pvp;
 	},
 };

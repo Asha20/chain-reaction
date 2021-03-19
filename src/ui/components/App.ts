@@ -1,6 +1,12 @@
 import m from "mithril";
 import { array, CancelPromise, RepeatablePromise, sleep } from "@common/util";
-import { PlayerRenderOptions, PlayRandomly, Runner, wasmRunner } from "@game";
+import {
+	PlayerRenderOptions,
+	PlayRandomly,
+	PlayUserInput,
+	Runner,
+	wasmRunner,
+} from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 import { Controls } from "./Controls";
@@ -21,6 +27,7 @@ const players: PlayerRenderOptions[] = [
 ];
 
 export function App(): m.Component {
+	const HumanPlayer = PlayUserInput();
 	let runner = getRunner();
 	let endPromise = CancelPromise<number[]>();
 	let tally = array(runner.game.players, () => 0);
@@ -29,10 +36,15 @@ export function App(): m.Component {
 	const advancePromise = RepeatablePromise();
 
 	function getRunner() {
+		HumanPlayer.setBoardSize(state.game.width, state.game.height);
+
 		const runner = new Runner({
 			width: state.game.width,
 			height: state.game.height,
-			players: [PlayRandomly, PlayRandomly],
+			players:
+				state.pvp && !state.wasm
+					? [HumanPlayer, HumanPlayer]
+					: [PlayRandomly, PlayRandomly],
 		});
 
 		const explosionDelay = state.manual
@@ -41,6 +53,8 @@ export function App(): m.Component {
 
 		const turnDelay = state.manual
 			? () => advancePromise.promise
+			: state.pvp
+			? () => sleep(0)
 			: () => sleep(state.game.turnDelay);
 
 		runner.hooks.add("explosionDelay", explosionDelay);
@@ -95,6 +109,11 @@ export function App(): m.Component {
 		return updateGame();
 	}
 
+	function togglePvP() {
+		actions.togglePvP();
+		return updateGame();
+	}
+
 	function advance() {
 		if (!state.manual) {
 			return;
@@ -140,10 +159,17 @@ export function App(): m.Component {
 	}
 
 	return {
-		oncreate() {
-			// Redraw so that mounting inside GameCanvas can use
-			// canvas.getBoundingClientRect() and get proper values from it.
-			m.redraw();
+		oncreate(vnode) {
+			const canvasBoard = vnode.dom.querySelector<HTMLCanvasElement>(".board");
+
+			if (canvasBoard) {
+				HumanPlayer.setCanvas(canvasBoard);
+				void updateGame();
+			} else {
+				// Redraw so that mounting inside GameCanvas can use
+				// canvas.getBoundingClientRect() and get proper values from it.
+				m.redraw();
+			}
 		},
 
 		view() {
@@ -167,6 +193,7 @@ export function App(): m.Component {
 					setTurnDelay,
 					toggleManualProgress,
 					toggleWASM,
+					togglePvP,
 				}),
 			];
 		},

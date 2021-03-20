@@ -10,7 +10,7 @@ import {
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 import { Controls } from "./Controls";
-import { state, actions } from "@ui/state";
+import { state, $state } from "@ui/state";
 import { Tally } from "./Tally";
 
 const players: PlayerRenderOptions[] = [
@@ -76,45 +76,19 @@ export function App(): m.Component {
 		m.redraw();
 	}
 
-	function setWidth(value: number) {
-		actions.setWidth(value);
-		return updateGame();
-	}
-
-	function setHeight(value: number) {
-		actions.setHeight(value);
-		return updateGame();
-	}
-
-	function setRuns(value: number) {
-		actions.setRuns(value);
-		return updateGame();
-	}
-
-	function setExplosionDelay(value: number) {
-		actions.setExplosionDelay(value);
-		return updateGame();
-	}
-
-	function setTurnDelay(value: number) {
-		actions.setTurnDelay(value);
-		return updateGame();
-	}
-
-	function toggleManualProgress() {
-		actions.toggleManualProgress();
-		return updateGame();
-	}
-
-	function toggleWASM() {
-		actions.toggleWASM();
-		return updateGame();
-	}
-
-	function togglePvP() {
-		actions.togglePvP();
-		return updateGame();
-	}
+	$state.on(
+		[
+			"width",
+			"height",
+			"runs",
+			"explosionDelay",
+			"turnDelay",
+			"manual",
+			"wasm",
+			"pvp",
+		],
+		updateGame,
+	);
 
 	function advance() {
 		if (!state.manual) {
@@ -144,7 +118,7 @@ export function App(): m.Component {
 		tally = array(runner.game.players, () => 0);
 		gameId = 0;
 
-		actions.setActive(true);
+		$state.emit("active", true);
 
 		endPromise = state.wasm
 			? wasmRunner.run(state.game, 100, refresh)
@@ -153,7 +127,7 @@ export function App(): m.Component {
 		console.time("start");
 		void endPromise.promise
 			.then(result => {
-				actions.setActive(false);
+				$state.emit("active", false);
 				tally = result;
 				console.timeEnd("start");
 			})
@@ -186,17 +160,7 @@ export function App(): m.Component {
 
 				m(Tally, { tally, gameId, runs: state.game.runs }),
 
-				m(Config, {
-					disabled: state.game.active,
-					setWidth,
-					setHeight,
-					setRuns,
-					setExplosionDelay,
-					setTurnDelay,
-					toggleManualProgress,
-					toggleWASM,
-					togglePvP,
-				}),
+				m(Config, { disabled: state.game.active }),
 			];
 		},
 	};

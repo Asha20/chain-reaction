@@ -1,34 +1,15 @@
 import m from "mithril";
-import { state, defaults } from "@ui/state";
+import { state, $state, defaults } from "@ui/state";
 import { NumberInput } from "./NumberInput";
 import { classNames } from "@ui/util";
 
 interface ConfigAttrs {
 	disabled: boolean;
-
-	setWidth(value: number): void;
-	setHeight(value: number): void;
-	setRuns(value: number): void;
-	setExplosionDelay(value: number): void;
-	setTurnDelay(value: number): void;
-	toggleManualProgress(): void;
-	toggleWASM(): void;
-	togglePvP(): void;
 }
 
 export const Config: m.Component<ConfigAttrs> = {
 	view(vnode) {
-		const {
-			disabled,
-			setWidth,
-			setHeight,
-			setRuns,
-			setExplosionDelay,
-			setTurnDelay,
-			toggleManualProgress,
-			toggleWASM,
-			togglePvP,
-		} = vnode.attrs;
+		const { disabled } = vnode.attrs;
 
 		const hideDelayConfig = state.manual || state.wasm;
 
@@ -44,7 +25,7 @@ export const Config: m.Component<ConfigAttrs> = {
 					defaultValue: state.game.width,
 					min: defaults.game.width.min,
 					max: defaults.game.width.max,
-					onChange: setWidth,
+					onChange: x => $state.emit("width", x),
 				}),
 			),
 
@@ -57,7 +38,7 @@ export const Config: m.Component<ConfigAttrs> = {
 					defaultValue: state.game.height,
 					min: defaults.game.height.min,
 					max: defaults.game.height.max,
-					onChange: setHeight,
+					onChange: x => $state.emit("height", x),
 				}),
 			),
 
@@ -70,7 +51,7 @@ export const Config: m.Component<ConfigAttrs> = {
 					defaultValue: state.game.runs,
 					min: defaults.game.runs.min,
 					max: defaults.game.runs.max,
-					onChange: setRuns,
+					onChange: x => $state.emit("runs", x),
 				}),
 			),
 
@@ -78,7 +59,7 @@ export const Config: m.Component<ConfigAttrs> = {
 				m("label[for=use-wasm]", "Use WASM:"),
 				m("input#use-wasm[type=checkbox]", {
 					checked: state.wasm,
-					onclick: toggleWASM,
+					onclick: () => $state.emit("wasm", !state.wasm),
 				}),
 			]),
 
@@ -86,7 +67,7 @@ export const Config: m.Component<ConfigAttrs> = {
 				m("label[for=step-by-step]", "Step by step:"),
 				m("input#step-by-step[type=checkbox]", {
 					checked: state.manual,
-					onclick: toggleManualProgress,
+					onclick: () => $state.emit("manual", !state.manual),
 				}),
 			]),
 
@@ -94,7 +75,7 @@ export const Config: m.Component<ConfigAttrs> = {
 				m("label[for=pvp]", "PvP:"),
 				m("input#pvp[type=checkbox]", {
 					checked: state.pvp,
-					onclick: togglePvP,
+					onclick: () => $state.emit("pvp", !state.pvp),
 				}),
 			]),
 
@@ -108,7 +89,7 @@ export const Config: m.Component<ConfigAttrs> = {
 						defaultValue: state.game.explosionDelay,
 						min: defaults.game.explosionDelay.min,
 						max: defaults.game.explosionDelay.max,
-						onChange: setExplosionDelay,
+						onChange: x => $state.emit("explosionDelay", x),
 					}),
 				),
 
@@ -121,7 +102,7 @@ export const Config: m.Component<ConfigAttrs> = {
 						defaultValue: state.game.turnDelay,
 						min: defaults.game.turnDelay.min,
 						max: defaults.game.turnDelay.max,
-						onChange: setTurnDelay,
+						onChange: x => $state.emit("turnDelay", x),
 					}),
 				),
 			]),

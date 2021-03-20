@@ -1,4 +1,5 @@
 import { Immutable } from "@ui/util";
+import { EventEmitter } from "@ui/event_emitter";
 
 interface State {
 	game: {
@@ -16,6 +17,21 @@ interface State {
 	wasm: boolean;
 	pvp: boolean;
 }
+
+type StateEventEmitter = {
+	width(width: number): void;
+	height(height: number): void;
+	runs(runs: number): void;
+	players(players: number): void;
+
+	active(active: boolean): void;
+	explosionDelay(explosionDelay: number): void;
+	turnDelay(turnDelay: number): void;
+
+	manual(manual: boolean): void;
+	wasm(wasm: boolean): void;
+	pvp(pvp: boolean): void;
+};
 
 function defaultState(): State {
 	return {
@@ -65,40 +81,15 @@ export const defaults = {
 
 export { immutableState as state };
 
-export const actions = {
-	setWidth(value: number): void {
-		state.game.width = value;
-	},
+export const $state = EventEmitter<StateEventEmitter>();
 
-	setHeight(value: number): void {
-		state.game.height = value;
-	},
-
-	setRuns(value: number): void {
-		state.game.runs = value;
-	},
-
-	setActive(value: boolean): void {
-		state.game.active = value;
-	},
-
-	setExplosionDelay(value: number): void {
-		state.game.explosionDelay = value;
-	},
-
-	setTurnDelay(value: number): void {
-		state.game.turnDelay = value;
-	},
-
-	toggleManualProgress(): void {
-		state.manual = !state.manual;
-	},
-
-	toggleWASM(): void {
-		state.wasm = !state.wasm;
-	},
-
-	togglePvP(): void {
-		state.pvp = !state.pvp;
-	},
-};
+$state.on("width", x => (state.game.width = x));
+$state.on("height", x => (state.game.height = x));
+$state.on("runs", x => (state.game.runs = x));
+$state.on("players", x => (state.game.players = x));
+$state.on("active", x => (state.game.active = x));
+$state.on("explosionDelay", x => (state.game.explosionDelay = x));
+$state.on("turnDelay", x => (state.game.turnDelay = x));
+$state.on("manual", x => (state.manual = x));
+$state.on("wasm", x => (state.wasm = x));
+$state.on("pvp", x => (state.pvp = x));

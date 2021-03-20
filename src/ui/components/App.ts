@@ -47,15 +47,17 @@ export function App(): m.Component {
 					: [PlayRandomly, PlayRandomly],
 		});
 
-		const explosionDelay = state.manual
-			? () => advancePromise.promise
-			: () => sleep(state.game.explosionDelay);
+		const explosionDelay =
+			!state.pvp && state.manual
+				? () => advancePromise.promise
+				: () => sleep(state.game.explosionDelay);
 
-		const turnDelay = state.manual
-			? () => advancePromise.promise
-			: state.pvp
-			? () => sleep(0)
-			: () => sleep(state.game.turnDelay);
+		const turnDelay =
+			!state.pvp && state.manual
+				? () => advancePromise.promise
+				: state.pvp
+				? () => sleep(0)
+				: () => sleep(state.game.turnDelay);
 
 		runner.hooks.add("explosionDelay", explosionDelay);
 		runner.hooks.add("turnDelay", turnDelay);

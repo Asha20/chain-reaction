@@ -1,6 +1,6 @@
 import { XY } from "./chain_reaction";
 import { Playable } from "./runner";
-import { random, waitForEvent } from "@common/util";
+import { random } from "@common/util";
 
 export const PlayRandomly: Playable<"PlayRandomly"> = {
 	name: "PlayRandomly",
@@ -31,6 +31,32 @@ interface PlayerUserInput extends Playable<"PlayUserInput"> {
 	setBoardSize(width: number, height: number): void;
 }
 
+function waitForTouch(element: HTMLElement): Promise<XY> {
+	return new Promise(resolve => {
+		function removeHandlers() {
+			element.removeEventListener("click", clickHandler);
+			element.removeEventListener("touchstart", touchStartHandler);
+		}
+
+		function clickHandler(e: MouseEvent) {
+			removeHandlers();
+			resolve({ x: e.clientX, y: e.clientY });
+		}
+
+		function touchStartHandler(e: TouchEvent) {
+			e.preventDefault();
+			removeHandlers();
+			resolve({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+		}
+
+		element.addEventListener("click", clickHandler, { once: true });
+		element.addEventListener("touchstart", touchStartHandler, {
+			passive: false,
+			once: true,
+		});
+	});
+}
+
 export function PlayUserInput(): PlayerUserInput {
 	let _canvas: HTMLCanvasElement | null = null;
 	let _width = 0;
@@ -59,14 +85,18 @@ export function PlayUserInput(): PlayerUserInput {
 
 			// eslint-disable-next-line no-constant-condition
 			while (true) {
-				const e = await waitForEvent(_canvas, "click");
+				const { x: clientX, y: clientY } = await waitForTouch(_canvas);
 				const rect = _canvas.getBoundingClientRect();
 
-				const posX = e.clientX - rect.left;
-				const posY = e.clientY - rect.top;
+				const posX = clientX - rect.left;
+				const posY = clientY - rect.top;
 
-				const x = Math.floor((posX / _canvas.width) * _width);
-				const y = Math.floor((posY / _canvas.height) * _height);
+				const x = Math.floor(
+					(posX / _canvas.width) * _width * window.devicePixelRatio,
+				);
+				const y = Math.floor(
+					(posY / _canvas.height) * _height * window.devicePixelRatio,
+				);
 
 				if (canPlace(x, y)) {
 					return { x, y };

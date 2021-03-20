@@ -47,7 +47,6 @@ export function mount(
 		canvas.height = pixelRatio * rect.width;
 		tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
 		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
 
 		// While it does say here that the unit is pixel, when drawing the
 		// board the context gets scaled by the tile size, so effectively
@@ -137,7 +136,14 @@ export function mount(
 		ctx.restore();
 
 		ctx.fillStyle = textColor;
-		ctx.fillText(String(cell.count), 0, 0);
+
+		/**
+		 * Simply setting the textBaseline to "middle" displays as expected
+		 * on Chrome, but looks off on Firefox. As a workaround, offset the
+		 * text manually.
+		 */
+		const TEXT_BASELINE_MIDDLE_OFSET = 0.075;
+		ctx.fillText(String(cell.count), 0, TEXT_BASELINE_MIDDLE_OFSET);
 		ctx.restore();
 	}
 

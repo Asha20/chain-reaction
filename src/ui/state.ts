@@ -11,6 +11,7 @@ interface State {
 		active: boolean;
 		explosionDelay: number;
 		turnDelay: number;
+		gameDelay: number;
 	};
 
 	manual: boolean;
@@ -27,6 +28,7 @@ type StateEventEmitter = {
 	active(active: boolean): void;
 	explosionDelay(explosionDelay: number): void;
 	turnDelay(turnDelay: number): void;
+	gameDelay(gameDelay: number): void;
 
 	manual(manual: boolean): void;
 	wasm(wasm: boolean): void;
@@ -42,8 +44,9 @@ function defaultState(): State {
 			players: 2,
 			active: false,
 
-			explosionDelay: 200,
-			turnDelay: 500,
+			explosionDelay: 50,
+			turnDelay: 50,
+			gameDelay: 500,
 		},
 		manual: false,
 		wasm: false,
@@ -73,6 +76,10 @@ export const defaults = {
 			max: 50_000,
 		},
 		turnDelay: {
+			min: 10,
+			max: 50_000,
+		},
+		gameDelay: {
 			min: 10,
 			max: 50_000,
 		},

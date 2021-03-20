@@ -59,8 +59,11 @@ export function App(): m.Component {
 				? () => sleep(0)
 				: () => sleep(state.game.turnDelay);
 
+		const gameDelay = () => sleep(state.game.gameDelay);
+
 		runner.hooks.add("explosionDelay", explosionDelay);
 		runner.hooks.add("turnDelay", turnDelay);
+		runner.hooks.add("gameDelay", gameDelay);
 
 		return runner;
 	}

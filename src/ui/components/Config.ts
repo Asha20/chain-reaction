@@ -105,6 +105,19 @@ export const Config: m.Component<ConfigAttrs> = {
 						onChange: x => $state.emit("turnDelay", x),
 					}),
 				),
+
+				m(
+					".config__field--2",
+					m(NumberInput, {
+						disabled,
+						id: "game-delay",
+						label: "Game delay:",
+						defaultValue: state.game.gameDelay,
+						min: defaults.game.gameDelay.min,
+						max: defaults.game.gameDelay.max,
+						onChange: x => $state.emit("gameDelay", x),
+					}),
+				),
 			]),
 		]);
 	},

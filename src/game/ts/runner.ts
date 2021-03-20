@@ -28,7 +28,7 @@ export class Runner {
 
 	private cancelPromise = CancelPromise();
 	private tallyPromise = CancelPromise<number[]>();
-	hooks: Hooks<"update" | "turnDelay" | "explosionDelay">;
+	hooks: Hooks<"update" | "turnDelay" | "explosionDelay" | "gameDelay">;
 
 	constructor(options: RunnerOptions) {
 		const { width, height, players } = options;
@@ -42,7 +42,7 @@ export class Runner {
 			canPlace: this.game.canPlace.bind(this.game),
 		});
 
-		this.hooks = extendHooks(this.game.hooks, "turnDelay");
+		this.hooks = extendHooks(this.game.hooks, "turnDelay", "gameDelay");
 	}
 
 	/**
@@ -82,6 +82,7 @@ export class Runner {
 				onGameFinished(winner, i, tally);
 			}
 
+			await this.hooks.run("gameDelay", this.cancelPromise.promise);
 			await this.game.reset();
 		}
 

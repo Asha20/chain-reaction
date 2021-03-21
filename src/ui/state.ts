@@ -97,6 +97,7 @@ $state.on("players", x => (state.game.players = x));
 $state.on("active", x => (state.game.active = x));
 $state.on("explosionDelay", x => (state.game.explosionDelay = x));
 $state.on("turnDelay", x => (state.game.turnDelay = x));
+$state.on("gameDelay", x => (state.game.gameDelay = x));
 $state.on("manual", x => (state.manual = x));
 $state.on("wasm", x => (state.wasm = x));
 $state.on("pvp", x => (state.pvp = x));

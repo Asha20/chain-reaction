@@ -86,6 +86,7 @@ export function App(): m.Component {
 			"runs",
 			"explosionDelay",
 			"turnDelay",
+			"gameDelay",
 			"manual",
 			"wasm",
 			"pvp",

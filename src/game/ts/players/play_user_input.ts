@@ -1,30 +1,5 @@
-import { XY } from "./chain_reaction";
-import { Playable } from "./runner";
-import { random } from "@common/util";
-
-export const PlayRandomly: Playable<"PlayRandomly"> = {
-	name: "PlayRandomly",
-	play({ width, height, canPlace }) {
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			const x = Math.floor(width * random());
-			const y = Math.floor(height * random());
-
-			if (canPlace(x, y)) {
-				return { x, y };
-			}
-		}
-	},
-};
-
-export function PlayPos(pos: XY): Playable<"PlayPos"> {
-	return {
-		name: "PlayPos",
-		play() {
-			return pos;
-		},
-	};
-}
+import { XY } from "../chain_reaction";
+import { Playable } from "../runner";
 
 interface PlayerUserInput extends Playable<"PlayUserInput"> {
 	setCanvas(canvas: HTMLCanvasElement): void;
@@ -105,11 +80,3 @@ export function PlayUserInput(): PlayerUserInput {
 		},
 	};
 }
-
-type GetPlayer<
-	T extends Playable | ((...args: never[]) => Playable)
-> = T extends (...args: never[]) => infer U ? U : T;
-
-export type Player = GetPlayer<
-	typeof PlayRandomly | typeof PlayPos | typeof PlayUserInput
->;

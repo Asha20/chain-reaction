@@ -98,6 +98,12 @@ export class ChainReaction {
 	/** The game board. */
 	grid: Cell[];
 
+	/** Set of positions that have empty cells. */
+	emptyCells: Set<number>;
+
+	/** Contains sets of owned positions for each player. */
+	ownedCells: Set<number>[];
+
 	/** The next player to play. */
 	private _currentPlayer = 0;
 
@@ -128,6 +134,8 @@ export class ChainReaction {
 		this.grid = array(width * height, Cell.empty);
 		this.neighbors = neighborMatrix(this.grid, width, height);
 		this.playerScore = array(players, () => 0);
+		this.emptyCells = new Set(countingArray(width * height));
+		this.ownedCells = array(players, () => new Set());
 	}
 
 	get currentPlayer(): number {
@@ -175,6 +183,11 @@ export class ChainReaction {
 		this.alivePlayers = 0;
 		this.playerScore = this.playerScore.map(() => 0);
 		this.grid.forEach(Cell.toEmpty);
+		this.emptyCells.clear();
+		countingArray(this.width * this.height).forEach(x =>
+			this.emptyCells.add(x),
+		);
+		this.ownedCells.forEach(set => set.clear());
 		await this.hooks.run("update", this.cancelPromise.promise);
 	}
 
@@ -232,6 +245,8 @@ export class ChainReaction {
 
 		if (cell.type === CellType.Empty) {
 			Cell.toOwned(cell, this._currentPlayer, 1);
+			this.ownedCells[this._currentPlayer].add(pos);
+			this.emptyCells.delete(pos);
 		} else {
 			if (cell.owner !== this._currentPlayer) {
 				throw new Error(`Field (${x}, ${y}) is already taken.`);
@@ -247,6 +262,8 @@ export class ChainReaction {
 
 		if (this.shouldExplode(pos)) {
 			Cell.toEmpty(cell);
+			this.emptyCells.add(pos);
+			this.ownedCells[this._currentPlayer].delete(pos);
 			await this.explode(pos, this._currentPlayer);
 		}
 
@@ -305,8 +322,11 @@ export class ChainReaction {
 			const newQueue: typeof queue = [];
 
 			for (const { pos, cell } of queue) {
+				this.ownedCells[player].add(pos);
+
 				if (cell.type === CellType.Owned) {
 					if (cell.owner !== player) {
+						this.ownedCells[cell.owner].delete(pos);
 						this.updateScore(player, cell.count);
 						this.updateScore(cell.owner, -cell.count);
 						cell.owner = player;
@@ -315,6 +335,7 @@ export class ChainReaction {
 					cell.count += 1;
 				} else {
 					Cell.toOwned(cell, player, 1);
+					this.emptyCells.delete(pos);
 				}
 
 				assert(cell.type === CellType.Owned);
@@ -338,6 +359,8 @@ export class ChainReaction {
 				// Make the cell an empty one only if it has no leftover mass.
 				cell.count -= this.neighbors[pos].length;
 				if (cell.count === 0) {
+					this.ownedCells[cell.owner].delete(pos);
+					this.emptyCells.add(pos);
 					Cell.toEmpty(cell);
 				}
 			}

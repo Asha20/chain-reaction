@@ -7,6 +7,9 @@ export interface GameContext {
 	height: ChainReaction["height"];
 	grid: ChainReaction["grid"];
 
+	player: number;
+	emptyCells: Set<number>;
+	ownedCells: Set<number>[];
 	canPlace: ChainReaction["canPlace"];
 }
 
@@ -24,7 +27,7 @@ export class Runner {
 	private players: Playable[];
 
 	/** Gets passed to players so they can decide what their move will be. */
-	private gameContext: Readonly<GameContext>;
+	private gameContext: Readonly<GameContext>[];
 
 	private cancelPromise = CancelPromise();
 	private tallyPromise = CancelPromise<number[]>();
@@ -35,12 +38,17 @@ export class Runner {
 
 		this.players = players;
 		this.game = new ChainReaction({ width, height, players: players.length });
-		this.gameContext = Object.freeze({
-			width: width,
-			height: height,
-			grid: this.game.grid,
-			canPlace: this.game.canPlace.bind(this.game),
-		});
+		this.gameContext = array(players.length, player =>
+			Object.freeze({
+				width: width,
+				height: height,
+				grid: this.game.grid,
+				player,
+				emptyCells: this.game.emptyCells,
+				ownedCells: this.game.ownedCells,
+				canPlace: this.game.canPlace.bind(this.game),
+			}),
+		);
 
 		this.hooks = extendHooks(this.game.hooks, "turnDelay", "gameDelay");
 	}
@@ -66,7 +74,7 @@ export class Runner {
 				const player = this.players[this.game.currentPlayer];
 
 				const pos = await Promise.race([
-					player.play(this.gameContext),
+					player.play(this.gameContext[this.game.currentPlayer]),
 					this.cancelPromise.promise as Promise<void>,
 				]);
 

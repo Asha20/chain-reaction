@@ -1,17 +1,22 @@
 import { Playable } from "../runner";
-import { random } from "@common/util";
+import { assert, random } from "@common/util";
+import { XY } from "@game/chain_reaction";
+
+function toXY(pos: number, width: number): XY {
+	return { x: pos % width, y: Math.floor(pos / width) };
+}
 
 export const PlayRandomly: Playable<"PlayRandomly"> = {
 	name: "PlayRandomly",
-	play({ width, height, canPlace }) {
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			const x = Math.floor(width * random());
-			const y = Math.floor(height * random());
+	play({ width, emptyCells, ownedCells, player }) {
+		const ownCells = ownedCells[player];
+		const availableCells = new Set([...ownCells, ...emptyCells]);
 
-			if (canPlace(x, y)) {
-				return { x, y };
-			}
-		}
+		assert(availableCells.size, "Making a move is impossible.");
+
+		const index = Math.floor(availableCells.size * random());
+		const pos = [...availableCells][index];
+
+		return toXY(pos, width);
 	},
 };

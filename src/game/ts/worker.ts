@@ -17,7 +17,7 @@ function reply(msg: WorkerMessage) {
 }
 
 const state: State = {
-	options: { width: 0, height: 0, players: 0, runs: 0 },
+	options: { width: 0, height: 0, players: [], runs: 0 },
 
 	tally: [],
 	gameId: 0,
@@ -39,7 +39,7 @@ self.addEventListener("message", async (e: MessageEvent<RunMessage>) => {
 		const result = mod.run_with_shared_buffer(
 			msg.options.width,
 			msg.options.height,
-			msg.options.players,
+			msg.options.players.length,
 			msg.options.runs,
 			msg.options.controlBuffer,
 			msg.options.tallyBuffer,
@@ -62,7 +62,7 @@ self.addEventListener("message", async (e: MessageEvent<RunMessage>) => {
 			state.options.runs - state.gameId,
 		);
 
-		const result = mod.run(width, height, players, runs);
+		const result = mod.run(width, height, players.length, runs);
 		result.forEach((score, i) => (state.tally[i] += score));
 		state.gameId += runs;
 
@@ -74,14 +74,19 @@ self.addEventListener("message", async (e: MessageEvent<RunMessage>) => {
 	}
 
 	if (msg.type === "incremental:start") {
-		state.tally = array(msg.options.players, () => 0);
+		state.tally = array(msg.options.players.length, () => 0);
 		state.options = msg.options;
 		state.gameId = 0;
 
 		// Calculate roughly how many games should be played in each
 		// batch to satisfy the provided refreshMs.
 		const beginSingle = Date.now();
-		mod.run(msg.options.width, msg.options.height, msg.options.players, 1);
+		mod.run(
+			msg.options.width,
+			msg.options.height,
+			msg.options.players.length,
+			1,
+		);
 		const duration = Date.now() - beginSingle;
 		state.runsPerBatch = Math.floor(msg.refreshMs / duration);
 

@@ -1,13 +1,13 @@
 import { Playable } from "../runner";
 import { assert, random } from "@common/util";
 import { XY } from "@game/chain_reaction";
+import { Player } from "./common";
 
 function toXY(pos: number, width: number): XY {
 	return { x: pos % width, y: Math.floor(pos / width) };
 }
 
-export const PlayRandomly: Playable<"PlayRandomly"> = {
-	name: "PlayRandomly",
+const singleton: Playable = {
 	play({ width, emptyCells, ownedCells, player }) {
 		const ownCells = ownedCells[player];
 		const availableCells = new Set([...ownCells, ...emptyCells]);
@@ -18,5 +18,12 @@ export const PlayRandomly: Playable<"PlayRandomly"> = {
 		const pos = [...availableCells][index];
 
 		return toXY(pos, width);
+	},
+};
+
+export const PlayRandomly: Player<"PlayRandomly"> = {
+	name: "PlayRandomly",
+	create() {
+		return singleton;
 	},
 };

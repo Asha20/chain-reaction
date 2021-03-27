@@ -1,10 +1,11 @@
 import { CancelPromise, noop } from "@common/util";
+import { WasmPlayerName } from "./players";
 
 export interface RunOptions {
 	width: number;
 	height: number;
 	runs: number;
-	players: number;
+	players: readonly WasmPlayerName[];
 }
 
 export interface RunWithSharedBufferOptions extends RunOptions {
@@ -50,7 +51,7 @@ function runWithSharedBuffer(
 	refreshMs: number,
 	updateCallback: (id: number, tally: number[]) => void,
 ): CancelPromise<WasmTally> {
-	const tallyBuffer = new SharedArrayBuffer(4 * options.players);
+	const tallyBuffer = new SharedArrayBuffer(4 * options.players.length);
 	/**
 	 * The first u32 of the buffer contains the current game id.
 	 * The second u32 of the buffer contains a cancellation flag.

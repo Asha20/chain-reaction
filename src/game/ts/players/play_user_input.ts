@@ -1,7 +1,8 @@
 import { XY } from "../chain_reaction";
 import { Playable } from "../runner";
+import { Player } from "./common";
 
-interface PlayerUserInput extends Playable<"PlayUserInput"> {
+interface PlayerUserInput extends Playable {
 	setCanvas(canvas: HTMLCanvasElement): void;
 	setBoardSize(width: number, height: number): void;
 }
@@ -32,14 +33,12 @@ function waitForTouch(element: HTMLElement): Promise<XY> {
 	});
 }
 
-export function PlayUserInput(): PlayerUserInput {
+function create(): PlayerUserInput {
 	let _canvas: HTMLCanvasElement | null = null;
 	let _width = 0;
 	let _height = 0;
 
 	return {
-		name: "PlayUserInput",
-
 		setCanvas(canvas) {
 			_canvas = canvas;
 		},
@@ -80,3 +79,8 @@ export function PlayUserInput(): PlayerUserInput {
 		},
 	};
 }
+
+export const PlayUserInput: Player<"PlayUserInput", PlayerUserInput> = {
+	name: "PlayUserInput",
+	create,
+};

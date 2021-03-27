@@ -13,8 +13,7 @@ export interface GameContext {
 	canPlace: ChainReaction["canPlace"];
 }
 
-export interface Playable<T extends string = string> {
-	name: T;
+export interface Playable {
 	play(context: GameContext): XY | Promise<XY>;
 }
 

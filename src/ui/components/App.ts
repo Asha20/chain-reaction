@@ -1,12 +1,6 @@
 import m from "mithril";
 import { array, CancelPromise, RepeatablePromise, sleep } from "@common/util";
-import {
-	PlayerRenderOptions,
-	PlayRandomly,
-	PlayUserInput,
-	Runner,
-	wasmRunner,
-} from "@game";
+import { PlayerRenderOptions, Runner, wasmRunner, getPlayer } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 import { Controls } from "./Controls";
@@ -24,10 +18,20 @@ const players: PlayerRenderOptions[] = [
 		textColor: "white",
 		shape: "star",
 	},
+	{
+		cellColor: "green",
+		textColor: "white",
+		shape: "square",
+	},
+	{
+		cellColor: "purple",
+		textColor: "white",
+		shape: "diamond",
+	},
 ];
 
 export function App(): m.Component {
-	const HumanPlayer = PlayUserInput();
+	const HumanPlayer = getPlayer("PlayUserInput");
 	let runner = getRunner();
 	let endPromise = CancelPromise<number[]>();
 	let tally = array(runner.game.players, () => 0);
@@ -41,10 +45,9 @@ export function App(): m.Component {
 		const runner = new Runner({
 			width: state.game.width,
 			height: state.game.height,
-			players:
-				state.pvp && !state.wasm
-					? [HumanPlayer, HumanPlayer]
-					: [PlayRandomly, PlayRandomly],
+			players: state.game.players.js.map(name =>
+				name === "PlayUserInput" ? HumanPlayer : getPlayer(name),
+			),
 		});
 
 		const explosionDelay =
@@ -90,6 +93,9 @@ export function App(): m.Component {
 			"manual",
 			"wasm",
 			"pvp",
+			"updatePlayerJS",
+			"updatePlayerWASM",
+			"updatePlayerCountJS",
 		],
 		updateGame,
 	);
@@ -125,7 +131,16 @@ export function App(): m.Component {
 		$state.emit("active", true);
 
 		endPromise = state.wasm
-			? wasmRunner.run(state.game, 100, refresh)
+			? wasmRunner.run(
+					{
+						width: state.game.width,
+						height: state.game.height,
+						runs: state.game.runs,
+						players: state.game.players.wasm,
+					},
+					100,
+					refresh,
+			  )
 			: runner.run(state.game.runs, onGameFinished);
 
 		console.time("start");

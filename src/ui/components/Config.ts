@@ -10,6 +10,7 @@ interface ConfigAttrs {
 }
 
 interface SelectAttrs {
+	id: string;
 	disabled: boolean;
 	options: Array<{ value: string; name: string }>;
 	onChange(value: string): void;
@@ -17,11 +18,12 @@ interface SelectAttrs {
 
 const Select: m.Component<SelectAttrs> = {
 	view(vnode) {
-		const { onChange, options, disabled } = vnode.attrs;
+		const { onChange, options, id, disabled } = vnode.attrs;
 
 		return m(
 			"select",
 			{
+				id,
 				disabled,
 				onchange: (e: Event) => {
 					if (!disabled) {
@@ -158,9 +160,10 @@ export function Config(): m.Component<ConfigAttrs> {
 
 			const PlayerSelect = (id: number) =>
 				m(".config__field--2", { key: id }, [
-					m("span", `Player ${id + 1}:`),
+					m("label", { for: `player-${id}` }, `Player ${id + 1}:`),
 
 					m(Select, {
+						id: `player-${id}`,
 						disabled,
 						options: playersJSOptions,
 						onChange: x => $state.emit("updatePlayerJS", id, x as JsPlayerName),

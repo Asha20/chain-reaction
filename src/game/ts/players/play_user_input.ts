@@ -81,6 +81,10 @@ function create(): PlayerUserInput {
 }
 
 export const PlayUserInput: Player<"PlayUserInput", PlayerUserInput> = {
-	name: "PlayUserInput",
+	meta: {
+		id: "PlayUserInput",
+		name: "Human player",
+		description: "Click on the board to make a move yourself.",
+	},
 	create,
 };

@@ -1,9 +1,15 @@
 import { Playable } from "../runner";
 
+export interface PlayerMeta<TId extends string> {
+	id: TId;
+	name: string;
+	description: string;
+}
+
 export interface Player<
-	TName extends string,
+	TId extends string,
 	TPlayable extends Playable = Playable
 > {
-	name: TName;
+	meta: PlayerMeta<TId>;
 	create(): TPlayable;
 }

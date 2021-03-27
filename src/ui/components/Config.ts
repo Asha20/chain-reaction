@@ -2,7 +2,7 @@ import m from "mithril";
 import { state, $state, defaults } from "@ui/state";
 import { NumberInput } from "./NumberInput";
 import { classNames } from "@ui/util";
-import { JsPlayerName, playersJS } from "@game";
+import { getPlayerMeta, JsPlayerName, playersJS } from "@game";
 import { array } from "@common/util";
 
 interface ConfigAttrs {
@@ -34,7 +34,10 @@ const Select: m.Component<SelectAttrs> = {
 	},
 };
 
-const playersJSOptions = playersJS.map(x => ({ value: x, name: x }));
+const playersJSOptions = playersJS.map(id => {
+	const meta = getPlayerMeta(id);
+	return { value: meta.id, name: meta.name };
+});
 
 export function Config(): m.Component<ConfigAttrs> {
 	return {

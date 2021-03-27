@@ -22,7 +22,11 @@ const singleton: Playable = {
 };
 
 export const PlayRandomly: Player<"PlayRandomly"> = {
-	name: "PlayRandomly",
+	meta: {
+		id: "PlayRandomly",
+		name: "Play randomly",
+		description: "Places a cell on a random available position.",
+	},
 	create() {
 		return singleton;
 	},

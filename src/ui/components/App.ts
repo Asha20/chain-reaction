@@ -45,8 +45,12 @@ export function App(): m.Component {
 		const runner = new Runner({
 			width: state.game.width,
 			height: state.game.height,
-			players: state.game.players.js.map(name =>
-				name === "PlayUserInput" ? HumanPlayer : getPlayer(name),
+
+			// Use own HumanPlayer because that's the one that
+			// attaches to the canvas and updates when the board size
+			// changes.
+			players: state.game.players.js.map(id =>
+				id === "PlayUserInput" ? HumanPlayer : getPlayer(id),
 			),
 		});
 

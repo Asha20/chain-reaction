@@ -67,7 +67,10 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 					m("input[type=text].number-input", {
 						id,
 						value,
-						oncreate: ({ dom }) => (dom as HTMLInputElement).focus(),
+						oncreate: ({ dom }) => {
+							(dom as HTMLInputElement).focus();
+							(dom as HTMLInputElement).select();
+						},
 						oninput: setValue,
 						onkeypress: saveValueOnEnter,
 						onblur: saveValue,

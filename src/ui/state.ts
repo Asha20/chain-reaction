@@ -21,7 +21,6 @@ interface State {
 
 	manual: boolean;
 	wasm: boolean;
-	pvp: boolean;
 }
 
 type StateEventEmitter = {
@@ -40,7 +39,6 @@ type StateEventEmitter = {
 
 	manual(manual: boolean): void;
 	wasm(wasm: boolean): void;
-	pvp(pvp: boolean): void;
 };
 
 function defaultState(): State {
@@ -61,7 +59,6 @@ function defaultState(): State {
 		},
 		manual: false,
 		wasm: false,
-		pvp: false,
 	};
 }
 
@@ -143,4 +140,3 @@ $state.on("turnDelay", x => (state.game.turnDelay = x));
 $state.on("gameDelay", x => (state.game.gameDelay = x));
 $state.on("manual", x => (state.manual = x));
 $state.on("wasm", x => (state.wasm = x));
-$state.on("pvp", x => (state.pvp = x));

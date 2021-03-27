@@ -54,15 +54,17 @@ export function App(): m.Component {
 			),
 		});
 
+		const pvp = state.game.players.js.every(id => id === "PlayUserInput");
+
 		const explosionDelay =
-			!state.pvp && state.manual
+			!pvp && state.manual
 				? () => advancePromise.promise
 				: () => sleep(state.game.explosionDelay);
 
 		const turnDelay =
-			!state.pvp && state.manual
+			!pvp && state.manual
 				? () => advancePromise.promise
-				: state.pvp
+				: pvp
 				? () => sleep(0)
 				: () => sleep(state.game.turnDelay);
 
@@ -96,7 +98,6 @@ export function App(): m.Component {
 			"gameDelay",
 			"manual",
 			"wasm",
-			"pvp",
 			"updatePlayerJS",
 			"updatePlayerWASM",
 			"updatePlayerCountJS",

@@ -104,18 +104,6 @@ export function Config(): m.Component<ConfigAttrs> {
 				],
 			);
 
-			const PvP = m(
-				".config__field--2",
-				{ class: classNames({ hide: state.wasm }) },
-				[
-					m("label[for=pvp]", "PvP:"),
-					m("input#pvp[type=checkbox]", {
-						checked: state.pvp,
-						onclick: () => $state.emit("pvp", !state.pvp),
-					}),
-				],
-			);
-
 			const ExplosionDelay = m(
 				".config__field--2",
 				m(NumberInput, {
@@ -160,7 +148,7 @@ export function Config(): m.Component<ConfigAttrs> {
 				m(NumberInput, {
 					disabled,
 					id: "player-count",
-					label: "Number of players:",
+					label: "Players:",
 					defaultValue: state.game.players.js.length,
 					min: defaults.game.players.min,
 					max: defaults.game.players.max,
@@ -189,7 +177,6 @@ export function Config(): m.Component<ConfigAttrs> {
 
 				UseWASM,
 				StepByStep,
-				PvP,
 
 				m("div", { class: classNames({ hide: hideDelayConfig }) }, [
 					ExplosionDelay,

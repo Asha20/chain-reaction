@@ -2,8 +2,7 @@ import m from "mithril";
 import { state, $state, defaults } from "@ui/state";
 import { NumberInput } from "./NumberInput";
 import { classNames } from "@ui/util";
-import { getPlayerMeta, JsPlayerName, playersJS } from "@game";
-import { array } from "@common/util";
+import { getPlayerMeta, JsPlayerName, playersJS, playersWASM } from "@game";
 
 interface ConfigAttrs {
 	disabled: boolean;
@@ -12,19 +11,23 @@ interface ConfigAttrs {
 interface SelectAttrs {
 	id: string;
 	disabled: boolean;
+	value: string;
 	options: Array<{ value: string; name: string }>;
 	onChange(value: string): void;
 }
 
 const Select: m.Component<SelectAttrs> = {
 	view(vnode) {
-		const { onChange, options, id, disabled } = vnode.attrs;
+		const { onChange, options, id, disabled, value } = vnode.attrs;
 
 		return m(
 			"select",
 			{
 				id,
 				disabled,
+				onupdate(vnode: m.VnodeDOM) {
+					(vnode.dom as HTMLSelectElement).value = value;
+				},
 				onchange: (e: Event) => {
 					if (!disabled) {
 						onChange((e.target as HTMLSelectElement).value);
@@ -36,16 +39,23 @@ const Select: m.Component<SelectAttrs> = {
 	},
 };
 
-const playersJSOptions = playersJS.map(id => {
+function playerIdToOption(id: Parameters<typeof getPlayerMeta>[0]) {
 	const meta = getPlayerMeta(id);
 	return { value: meta.id, name: meta.name };
-});
+}
+
+const playersJSOptions = playersJS.map(playerIdToOption);
+const playersWASMOptions = playersWASM.map(playerIdToOption);
 
 export function Config(): m.Component<ConfigAttrs> {
 	return {
 		view(vnode) {
 			const { disabled } = vnode.attrs;
 			const hideDelayConfig = state.manual || state.wasm;
+
+			const playersArray = state.wasm
+				? state.game.players.wasm
+				: state.game.players.js;
 
 			const BoardWidth = m(
 				".config__field--2",
@@ -151,22 +161,31 @@ export function Config(): m.Component<ConfigAttrs> {
 					disabled,
 					id: "player-count",
 					label: "Players:",
-					defaultValue: state.game.players.js.length,
+					defaultValue: playersArray.length,
 					min: defaults.game.players.min,
 					max: defaults.game.players.max,
-					onChange: x => $state.emit("updatePlayerCountJS", x),
+					onChange: x => {
+						$state.emit("updatePlayerCountWASM", x);
+						$state.emit("updatePlayerCountJS", x);
+					},
 				}),
 			);
 
-			const PlayerSelect = (id: number) =>
+			const PlayerSelect = (value: string, id: number) =>
 				m(".config__field--2.config__field--select", { key: id }, [
 					m("label", { for: `player-${id}` }, `Player ${id + 1}:`),
 
 					m(Select, {
 						id: `player-${id}`,
 						disabled,
-						options: playersJSOptions,
-						onChange: x => $state.emit("updatePlayerJS", id, x as JsPlayerName),
+						value,
+						options: state.wasm ? playersWASMOptions : playersJSOptions,
+						onChange: x =>
+							$state.emit(
+								state.wasm ? "updatePlayerWASM" : "updatePlayerJS",
+								id,
+								x as JsPlayerName,
+							),
 					}),
 				]);
 
@@ -190,7 +209,7 @@ export function Config(): m.Component<ConfigAttrs> {
 				m("h3", "Players"),
 
 				NumberOfPlayers,
-				array(state.game.players.js.length, PlayerSelect),
+				playersArray.map(PlayerSelect),
 			]);
 		},
 	};

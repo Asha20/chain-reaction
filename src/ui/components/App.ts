@@ -102,6 +102,7 @@ export function App(): m.Component {
 			"updatePlayerJS",
 			"updatePlayerWASM",
 			"updatePlayerCountJS",
+			"updatePlayerCountWASM",
 		],
 		updateGame,
 	);

@@ -267,7 +267,7 @@ export class ChainReaction {
 			await this.explode(pos, this._currentPlayer);
 		}
 
-		this._currentPlayer = (this._currentPlayer + 1) % this.players;
+		this.nextPlayer();
 		this.turn += 1;
 	}
 
@@ -290,6 +290,10 @@ export class ChainReaction {
 		}
 
 		return result;
+	}
+
+	nextPlayer(): void {
+		this._currentPlayer = (this._currentPlayer + 1) % this.players;
 	}
 
 	/** Given a cell that has reached critical mass, splits

@@ -9,9 +9,7 @@ function toXY(pos: number, width: number): XY {
 
 const singleton: Playable = {
 	play({ width, emptyCells, ownedCells, player }) {
-		const ownCells = ownedCells[player];
-		const availableCells = new Set([...ownCells, ...emptyCells]);
-
+		const availableCells = new Set([...ownedCells[player], ...emptyCells]);
 		assert(availableCells.size, "Making a move is impossible.");
 
 		const index = Math.floor(availableCells.size * random());

@@ -72,14 +72,26 @@ export class Runner {
 
 				const player = this.players[this.game.currentPlayer];
 
-				const pos = await Promise.race([
-					player.play(this.gameContext[this.game.currentPlayer]),
-					this.cancelPromise.promise as Promise<void>,
+				const gameContext = this.gameContext[this.game.currentPlayer];
+
+				const availableCells = new Set([
+					...gameContext.ownedCells[this.game.currentPlayer],
+					...gameContext.emptyCells,
 				]);
 
-				if (pos) {
-					await this.game.place(pos.x, pos.y);
-					await this.hooks.run("turnDelay", this.cancelPromise.promise);
+				if (availableCells.size) {
+					const pos = await Promise.race([
+						player.play(gameContext),
+						this.cancelPromise.promise as Promise<void>,
+					]);
+
+					if (pos) {
+						await this.game.place(pos.x, pos.y);
+						await this.hooks.run("turnDelay", this.cancelPromise.promise);
+					}
+				} else {
+					// Skip the player's turn if they can't make any legal moves.
+					this.game.nextPlayer();
 				}
 			}
 

@@ -26,6 +26,8 @@ function getContext(canvas: HTMLCanvasElement) {
 	return ctx;
 }
 
+const defaultCanvasSize = new WeakMap<HTMLCanvasElement, number>();
+
 /** Renders the game to a canvas.
  *
  * @returns An unsubscribe function.
@@ -39,13 +41,33 @@ export function mount(
 	const ctx = getContext(canvas);
 
 	function resizeCanvas() {
-		const rect = canvas.getBoundingClientRect();
 		const pixelRatio = window.devicePixelRatio;
 
-		canvas.style.height = `${rect.width}px`;
-		canvas.width = pixelRatio * rect.width;
-		canvas.height = pixelRatio * rect.width;
-		tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
+		// The canvas element should have width: 100% set with CSS.
+		// This then allows us to obtain the maximum width of the canvas
+		// without it overflowing out of the document. When the canvas
+		//  gets mounted the first time, we remember this value
+		//  and use it as a maximum width for further calculations.
+		if (!defaultCanvasSize.has(canvas)) {
+			const rect = canvas.getBoundingClientRect();
+			const maxWidth = rect.width;
+			defaultCanvasSize.set(canvas, maxWidth);
+			canvas.style.maxHeight = canvas.style.maxWidth = `${maxWidth}px`;
+		}
+
+		const maxWidth = defaultCanvasSize.get(canvas);
+		assert(maxWidth !== undefined);
+
+		tileSize.update(maxWidth);
+		canvas.width = pixelRatio * tileSize.value * game.width;
+		canvas.height = pixelRatio * tileSize.value * game.height;
+
+		canvas.style.width = `${canvas.width / pixelRatio}px`;
+		canvas.style.height = `${canvas.height / pixelRatio}px`;
+
+		const vMargin = (maxWidth - canvas.height / pixelRatio) / 2;
+		canvas.style.marginBottom = canvas.style.marginTop = `${vMargin}px`;
+
 		ctx.textAlign = "center";
 
 		// While it does say here that the unit is pixel, when drawing the
@@ -55,15 +77,21 @@ export function mount(
 		draw();
 	}
 
-	let tileSize = Math.floor(canvas.width / Math.max(game.width, game.height));
-	const tile = (x: number) => x * tileSize;
+	const tileSize = {
+		value: 0,
+
+		update(maxWidth: number) {
+			this.value = Math.floor(maxWidth / Math.max(game.width, game.height));
+		},
+	};
+
+	const tile = (x: number) => x * window.devicePixelRatio * tileSize.value;
 
 	resizeCanvas();
 
 	const onResize = debounce(50, resizeCanvas);
 	window.addEventListener("resize", onResize);
 
-	draw();
 	const unsubscribeFromUpdate = game.hooks.add("update", draw);
 	const unsubscribeFromResize = () => {
 		window.removeEventListener("resize", onResize);
@@ -148,7 +176,7 @@ export function mount(
 	}
 
 	function drawBoard() {
-		ctx.scale(tileSize, tileSize);
+		ctx.scale(tile(1), tile(1));
 		const getXY = (pos: number): XY => ({
 			x: pos % game.width,
 			y: Math.floor(pos / game.width),

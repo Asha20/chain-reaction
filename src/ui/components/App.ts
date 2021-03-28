@@ -4,6 +4,7 @@ import { PlayerRenderOptions, Runner, wasmRunner, getPlayer } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 import { Controls } from "./Controls";
+import { Grid } from "./Grid";
 import { state, $state } from "@ui/state";
 import { Tally } from "./Tally";
 
@@ -173,19 +174,22 @@ export function App(): m.Component {
 		},
 
 		view() {
-			return [
-				m(GameCanvas, { game: runner.game, options: { players } }),
-
-				m(Controls, {
+			return m(Grid, {
+				canvas: m(
+					".wrapper",
+					m(GameCanvas, {
+						game: runner.game,
+						options: { players },
+					}),
+				),
+				controls: m(Controls, {
 					onStart: runSimulation,
 					onCancel: updateGame,
 					onAdvance: advance,
 				}),
-
-				m(Tally, { tally, gameId, runs: state.game.runs }),
-
-				m(Config, { disabled: state.game.active }),
-			];
+				tally: m(Tally, { tally, gameId, runs: state.game.runs }),
+				config: m(Config, { disabled: state.game.active }),
+			});
 		},
 	};
 }

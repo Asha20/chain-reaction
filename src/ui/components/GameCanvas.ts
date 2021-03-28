@@ -14,7 +14,7 @@ export function GameCanvas(): m.Component<GameCanvasAttrs> {
 
 	function attach(vnode: m.VnodeDOM<GameCanvasAttrs>) {
 		const { game, options } = vnode.attrs;
-		const canvas = vnode.dom.firstElementChild;
+		const canvas = vnode.dom;
 		assert(canvas instanceof HTMLCanvasElement);
 		unsubscribe = mount(game, canvas, options);
 	}
@@ -28,7 +28,7 @@ export function GameCanvas(): m.Component<GameCanvasAttrs> {
 		},
 
 		view() {
-			return m(".grid--canvas", m("canvas.board"));
+			return m("canvas.board");
 		},
 	};
 }

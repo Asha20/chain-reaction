@@ -10,7 +10,7 @@ export const Tally: m.Component<TallyAttrs> = {
 	view(vnode) {
 		const { tally, gameId, runs } = vnode.attrs;
 
-		return m(".grid--tally", [
+		return m(".tally", [
 			m("h2", "Tally"),
 			m(".config__field--2", [
 				m("span", "Score:"),

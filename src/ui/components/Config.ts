@@ -170,7 +170,7 @@ export function Config(): m.Component<ConfigAttrs> {
 					}),
 				]);
 
-			return m(".config.grid--config", [
+			return m(".config", [
 				m("h2", "Configuration"),
 				m("h3", "Board settings"),
 

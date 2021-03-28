@@ -12,7 +12,7 @@ export const Controls: m.Component<ControlAttrs> = {
 	view(vnode) {
 		const { onStart, onCancel, onAdvance } = vnode.attrs;
 
-		return m(".controls.grid--controls", [
+		return m(".controls", [
 			m("button", { disabled: state.game.active, onclick: onStart }, "Start"),
 			m(
 				"button",

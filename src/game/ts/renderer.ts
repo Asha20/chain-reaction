@@ -165,13 +165,18 @@ export function mount(
 
 		ctx.fillStyle = textColor;
 
-		/**
-		 * Simply setting the textBaseline to "middle" displays as expected
-		 * on Chrome, but looks off on Firefox. As a workaround, offset the
-		 * text manually.
-		 */
-		const TEXT_BASELINE_MIDDLE_OFSET = 0.075;
-		ctx.fillText(String(cell.count), 0, TEXT_BASELINE_MIDDLE_OFSET);
+		/** Don't bother rendering text if it's too small to read. */
+		const MIN_TILE_SIZE_FOR_TEXT = 30;
+		if (tileSize.value > MIN_TILE_SIZE_FOR_TEXT) {
+			/**
+			 * Simply setting the textBaseline to "middle" displays as expected
+			 * on Chrome, but looks off on Firefox. As a workaround, offset the
+			 * text manually.
+			 */
+			const TEXT_BASELINE_MIDDLE_OFSET = 0.075;
+			ctx.fillText(String(cell.count), 0, TEXT_BASELINE_MIDDLE_OFSET);
+		}
+
 		ctx.restore();
 	}
 

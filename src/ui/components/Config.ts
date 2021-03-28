@@ -159,7 +159,7 @@ export function Config(): m.Component<ConfigAttrs> {
 			);
 
 			const PlayerSelect = (id: number) =>
-				m(".config__field--2", { key: id }, [
+				m(".config__field--2.config__field--select", { key: id }, [
 					m("label", { for: `player-${id}` }, `Player ${id + 1}:`),
 
 					m(Select, {

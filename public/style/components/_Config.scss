@@ -52,4 +52,14 @@
 			text-align: center;
 		}
 	}
+
+	&--select {
+		height: 2em;
+
+		select {
+			min-height: 2em;
+			font-size: 0.8em;
+			padding: 0 5px;
+		}
+	}
 }

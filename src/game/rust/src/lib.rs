@@ -11,11 +11,26 @@ pub use chain_reaction::ChainReaction;
 pub use players::*;
 pub use runner::{Player, Runner};
 
+fn resolve_players(players: &js_sys::Uint32Array) -> Vec<Box<dyn Player>> {
+    let mut result: Vec<Box<dyn Player>> = Vec::new();
+
+    for i in 0u32..players.length() {
+        let player: Box<dyn Player> = match players.get_index(i) {
+            0 => Box::new(PlayRandomly {}),
+            _ => panic!("Unrecognized player"),
+        };
+
+        result.push(player);
+    }
+
+    result
+}
+
 #[wasm_bindgen]
 pub fn run_with_shared_buffer(
     width: usize,
     height: usize,
-    players: usize,
+    players: &js_sys::Uint32Array,
     times: u32,
     control_buffer: &js_sys::SharedArrayBuffer,
     tally_buffer: &js_sys::SharedArrayBuffer,
@@ -23,7 +38,7 @@ pub fn run_with_shared_buffer(
     let control_array = js_sys::Uint32Array::new(control_buffer);
     let tally_array = js_sys::Uint32Array::new(tally_buffer);
 
-    let players = vec![PlayRandomly {}; players];
+    let players = resolve_players(players);
 
     let mut runner = Runner::new(
         width,
@@ -44,8 +59,8 @@ pub fn run_with_shared_buffer(
 }
 
 #[wasm_bindgen]
-pub fn run(width: usize, height: usize, players: usize, times: u32) -> Vec<usize> {
-    let players = vec![PlayRandomly {}; players];
+pub fn run(width: usize, height: usize, players: &js_sys::Uint32Array, times: u32) -> Vec<usize> {
+    let players = resolve_players(players);
     let mut runner = Runner::new(width, height, players, None, None).unwrap();
 
     let tally = runner.run(times).unwrap();

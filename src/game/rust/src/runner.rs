@@ -55,12 +55,12 @@ impl<'a> GameContext<'a> {
             .collect()
     }
 
-    pub fn capacity(&self, pos: &Pos) -> Result<&u32, &'static str> {
-        self.game.capacity.get(pos)
+    pub fn capacity(&self, pos: &Pos) -> u32 {
+        *self.game.capacity.get(pos).unwrap()
     }
 
-    pub fn mass(&self, pos: &Pos) -> Result<u32, &'static str> {
-        let field = self.game.grid.get(pos)?;
+    pub fn mass(&self, pos: &Pos) -> u32 {
+        let field = self.game.grid.get(pos).unwrap();
         let field = field.get();
 
         let mass = match field {
@@ -68,7 +68,7 @@ impl<'a> GameContext<'a> {
             Field::Owned(data) => data.count,
         };
 
-        Ok(mass)
+        mass
     }
 
     pub fn neighbors(&self, pos: &Pos) -> Vec<(Pos, &Cell<Field>)> {
@@ -76,30 +76,24 @@ impl<'a> GameContext<'a> {
     }
 }
 
-pub struct Runner<'a, P>
-where
-    P: Player,
-{
+pub struct Runner<'a> {
     width: usize,
     height: usize,
     game: ChainReaction,
-    players: Vec<P>,
+    players: Vec<Box<dyn Player>>,
 
     on_game_finished: Option<Box<dyn Fn(&Vec<usize>, &usize, &u32) + 'a>>,
     should_stop: Option<Box<dyn Fn() -> bool + 'a>>,
 }
 
-impl<'a, P> Runner<'a, P>
-where
-    P: Player,
-{
+impl<'a> Runner<'a> {
     pub fn new(
         width: usize,
         height: usize,
-        players: Vec<P>,
+        players: Vec<Box<dyn Player>>,
         on_game_finished: Option<Box<dyn Fn(&Vec<usize>, &usize, &u32) + 'a>>,
         should_stop: Option<Box<dyn Fn() -> bool + 'a>>,
-    ) -> Result<Runner<'a, P>, &'static str> {
+    ) -> Result<Runner<'a>, &'static str> {
         let game = ChainReaction::new(width, height, players.len())?;
 
         Ok(Runner {

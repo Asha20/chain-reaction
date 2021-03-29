@@ -1,4 +1,5 @@
 import { array } from "@common/util";
+import { WasmPlayerName } from "./players";
 import { RunMessage, WorkerMessage, RunOptions } from "./wasm_runner";
 
 /* eslint-env worker */
@@ -24,6 +25,22 @@ const state: State = {
 	runsPerBatch: 0,
 };
 
+function mapWasmPlayer(player: WasmPlayerName) {
+	switch (player) {
+		case "PlayRandomly":
+			return 0;
+		default:
+			throw new Error(`Player ${player} isn't supported in WASM mode.`);
+	}
+}
+
+function resolvePlayers(players: readonly WasmPlayerName[]) {
+	const result = new Uint32Array(players.length);
+
+	players.forEach((player, i) => (result[i] = mapWasmPlayer(player)));
+	return result;
+}
+
 /**
  * See src/game/ts/wasm_runner.ts for a detailed explanation
  * of how this worker functions.
@@ -39,7 +56,7 @@ self.addEventListener("message", async (e: MessageEvent<RunMessage>) => {
 		const result = mod.run_with_shared_buffer(
 			msg.options.width,
 			msg.options.height,
-			msg.options.players.length,
+			resolvePlayers(msg.options.players),
 			msg.options.runs,
 			msg.options.controlBuffer,
 			msg.options.tallyBuffer,
@@ -62,7 +79,7 @@ self.addEventListener("message", async (e: MessageEvent<RunMessage>) => {
 			state.options.runs - state.gameId,
 		);
 
-		const result = mod.run(width, height, players.length, runs);
+		const result = mod.run(width, height, resolvePlayers(players), runs);
 		result.forEach((score, i) => (state.tally[i] += score));
 		state.gameId += runs;
 
@@ -84,7 +101,7 @@ self.addEventListener("message", async (e: MessageEvent<RunMessage>) => {
 		mod.run(
 			msg.options.width,
 			msg.options.height,
-			msg.options.players.length,
+			resolvePlayers(msg.options.players),
 			1,
 		);
 		const duration = Date.now() - beginSingle;

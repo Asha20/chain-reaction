@@ -1,10 +1,11 @@
-use chain_reaction::{PlayRandomly, Runner};
+use chain_reaction::{PlayRandomly, Player, Runner};
 use std::time::Instant;
 
 fn main() -> Result<(), &'static str> {
-    let width = 50;
-    let height = 50;
-    let players = vec![PlayRandomly {}; 2];
+    let width = 3;
+    let height = 3;
+    let players: Vec<Box<dyn Player>> =
+        vec![Box::new(PlayRandomly {}), Box::new(PlayRandomly {})];
 
     let now = Instant::now();
     let mut runner = Runner::new(width, height, players, None, None)?;

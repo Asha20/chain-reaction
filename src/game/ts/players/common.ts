@@ -1,4 +1,5 @@
 import { Playable } from "../runner";
+import { XY } from "../common";
 
 export interface PlayerMeta<TId extends string> {
 	id: TId;
@@ -13,3 +14,9 @@ export interface Player<
 	meta: PlayerMeta<TId>;
 	create(): TPlayable;
 }
+
+export function toXY(pos: number, width: number): XY {
+	return { x: pos % width, y: Math.floor(pos / width) };
+}
+
+export { XY };

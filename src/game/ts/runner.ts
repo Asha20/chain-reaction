@@ -1,6 +1,11 @@
-import { ChainReaction, ChainReactionOptions, XY } from "./chain_reaction";
+import {
+	CellType,
+	ChainReaction,
+	ChainReactionOptions,
+} from "./chain_reaction";
 import { array, CancelPromise } from "@common/util";
 import { Hooks, extendHooks } from "@common/hooks";
+import { neighbors, XY } from "./common";
 
 export interface GameContext {
 	width: ChainReaction["width"];
@@ -10,7 +15,12 @@ export interface GameContext {
 	player: number;
 	emptyCells: Set<number>;
 	ownedCells: Set<number>[];
+	availableCells(): Set<number>;
+
 	canPlace: ChainReaction["canPlace"];
+	neighbors(pos: number): number[];
+	mass(pos: number): number;
+	capacity(pos: number): number;
 }
 
 export interface Playable {
@@ -19,6 +29,34 @@ export interface Playable {
 
 interface RunnerOptions extends Omit<ChainReactionOptions, "players"> {
 	players: Playable[];
+}
+
+function createGameContext(player: number, game: ChainReaction): GameContext {
+	const { width, height, emptyCells, ownedCells, grid } = game;
+
+	return Object.freeze({
+		width,
+		height,
+		grid,
+		player,
+		emptyCells,
+		ownedCells,
+		availableCells() {
+			return new Set([...game.emptyCells, ...game.ownedCells[player]]);
+		},
+
+		canPlace: game.canPlace.bind(game),
+		capacity: game.capacity.bind(game),
+
+		neighbors(pos) {
+			return neighbors(pos, width, height);
+		},
+
+		mass(pos) {
+			const cell = grid[pos];
+			return cell.type === CellType.Owned ? cell.count : 0;
+		},
+	});
 }
 
 export class Runner {
@@ -38,15 +76,7 @@ export class Runner {
 		this.players = players;
 		this.game = new ChainReaction({ width, height, players: players.length });
 		this.gameContext = array(players.length, player =>
-			Object.freeze({
-				width: width,
-				height: height,
-				grid: this.game.grid,
-				player,
-				emptyCells: this.game.emptyCells,
-				ownedCells: this.game.ownedCells,
-				canPlace: this.game.canPlace.bind(this.game),
-			}),
+			createGameContext(player, this.game),
 		);
 
 		this.hooks = extendHooks(this.game.hooks, "turnDelay", "gameDelay");

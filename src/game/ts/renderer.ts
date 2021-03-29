@@ -1,5 +1,6 @@
-import { ChainReaction, CellType, XY, OwnedCell } from "./chain_reaction";
+import { ChainReaction, CellType, OwnedCell } from "./chain_reaction";
 import { assert, debounce } from "@common/util";
+import { XY } from "./common";
 
 type PlayerRenderShape = "circle" | "diamond" | "square" | "star";
 

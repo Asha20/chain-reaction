@@ -1,6 +1,5 @@
-import { XY } from "../chain_reaction";
 import { Playable } from "../runner";
-import { Player } from "./common";
+import { Player, XY } from "./common";
 
 interface PlayerUserInput extends Playable {
 	setCanvas(canvas: HTMLCanvasElement): void;

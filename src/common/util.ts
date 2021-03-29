@@ -126,3 +126,15 @@ export function RepeatablePromise(): Omit<CancelPromise, "cancelled"> {
 		},
 	};
 }
+
+export function flow<A, B>(x: A, f1: Fn<[A], B>): B;
+export function flow<A, B, C>(x: A, f1: Fn<[A], B>, f2: Fn<[B], C>): C;
+export function flow<A, B, C, D>(
+	x: A,
+	f1: Fn<[A], B>,
+	f2: Fn<[B], C>,
+	f3: Fn<[C], D>,
+): D;
+export function flow(x: unknown, ...fns: Fn<unknown[], unknown>[]): unknown {
+	return fns.reduce((acc, fn) => fn(acc), x);
+}

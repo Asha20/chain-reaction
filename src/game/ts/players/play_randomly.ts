@@ -1,19 +1,12 @@
 import { Playable } from "../runner";
-import { assert, random } from "@common/util";
-import { XY } from "@game/chain_reaction";
-import { Player } from "./common";
-
-function toXY(pos: number, width: number): XY {
-	return { x: pos % width, y: Math.floor(pos / width) };
-}
+import { random } from "@common/util";
+import { Player, toXY } from "./common";
 
 const singleton: Playable = {
-	play({ width, emptyCells, ownedCells, player }) {
-		const availableCells = new Set([...ownedCells[player], ...emptyCells]);
-		assert(availableCells.size, "Making a move is impossible.");
-
-		const index = Math.floor(availableCells.size * random());
-		const pos = [...availableCells][index];
+	play({ width, availableCells }) {
+		const available = availableCells();
+		const index = Math.floor(available.size * random());
+		const pos = [...available][index];
 
 		return toXY(pos, width);
 	},

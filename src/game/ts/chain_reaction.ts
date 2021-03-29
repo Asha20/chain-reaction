@@ -1,15 +1,10 @@
 import { assert, array, CancelPromise } from "@common/util";
 import { Hooks } from "@common/hooks";
-import { countingArray } from "./util";
+import { countingArray, neighbors } from "./common";
 
 export enum CellType {
 	Empty,
 	Owned,
-}
-
-export interface XY {
-	x: number;
-	y: number;
 }
 
 export interface ChainReactionOptions {
@@ -58,31 +53,9 @@ const Cell = {
  * be done exclusively in a *mutable* fashion.
  */
 function neighborMatrix(cellMatrix: Cell[], width: number, height: number) {
-	const getXY = (pos: number): XY => ({
-		x: pos % width,
-		y: Math.floor(pos / width),
-	});
-
-	const getPos = ({ x, y }: XY) => y * width + x;
-
-	const neighbors = ({ x, y }: XY): XY[] => [
-		{ x: x - 1, y },
-		{ x: x + 1, y },
-		{ x, y: y - 1 },
-		{ x, y: y + 1 },
-	];
-
-	const inBounds = ({ x, y }: XY) =>
-		x >= 0 && x < width && y >= 0 && y < height;
-
-	const matrix = countingArray(width * height)
-		.map(getXY)
-		.map(neighbors)
-		.map(neighbors => neighbors.filter(inBounds))
-		.map(neighbors => neighbors.map(getPos))
-		.map(neighbors => neighbors.map(pos => ({ pos, cell: cellMatrix[pos] })));
-
-	return matrix;
+	return countingArray(width * height)
+		.map(pos => neighbors(pos, width, height))
+		.map(ns => ns.map(pos => ({ pos, cell: cellMatrix[pos] })));
 }
 
 export class ChainReaction {
@@ -158,6 +131,11 @@ export class ChainReaction {
 	cancel(): void {
 		this.cancelPromise.cancel();
 		this.hooks.clear();
+	}
+
+	/** The number of cells around the given cell. */
+	capacity(pos: number): number {
+		return this.neighbors[pos].length;
 	}
 
 	/** Tells whether the game is finished. */

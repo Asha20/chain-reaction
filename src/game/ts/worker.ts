@@ -29,6 +29,10 @@ function mapWasmPlayer(player: WasmPlayerName) {
 	switch (player) {
 		case "PlayRandomly":
 			return 0;
+		case "AvoidOthers":
+			return 1;
+		case "FormChains":
+			return 2;
 		default:
 			throw new Error(`Player ${player} isn't supported in WASM mode.`);
 	}

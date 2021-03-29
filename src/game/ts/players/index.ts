@@ -30,7 +30,11 @@ export const playersJS: JsPlayerName[] = [
 	"AvoidOthers",
 	"FormChains",
 ];
-export const playersWASM: WasmPlayerName[] = ["PlayRandomly"];
+export const playersWASM: WasmPlayerName[] = [
+	"PlayRandomly",
+	"AvoidOthers",
+	"FormChains",
+];
 
 export function getPlayer<TId extends Players["meta"]["id"]>(
 	id: TId,

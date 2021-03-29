@@ -17,6 +17,8 @@ fn resolve_players(players: &js_sys::Uint32Array) -> Vec<Box<dyn Player>> {
     for i in 0u32..players.length() {
         let player: Box<dyn Player> = match players.get_index(i) {
             0 => Box::new(PlayRandomly {}),
+            1 => Box::new(AvoidOthers {}),
+            2 => Box::new(FormChains::new()),
             _ => panic!("Unrecognized player"),
         };
 

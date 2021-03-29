@@ -5,7 +5,7 @@ fn main() -> Result<(), &'static str> {
     let width = 3;
     let height = 3;
     let players: Vec<Box<dyn Player>> =
-        vec![Box::new(FormChains::new()), Box::new(PlayRandomly {})];
+        vec![Box::new(PlayRandomly {}), Box::new(PlayRandomly {}), Box::new(PlayRandomly {})];
 
     let now = Instant::now();
     let mut runner = Runner::new(width, height, players, None, None)?;

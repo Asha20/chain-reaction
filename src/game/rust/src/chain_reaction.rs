@@ -169,6 +169,10 @@ impl ChainReaction {
         Ok(())
     }
 
+    pub fn skip_player(&self) -> () {
+        self.current_player.set((self.current_player.get() + 1) % self.players);
+    }
+
     pub fn can_play(&self, pos: &Pos) -> Result<bool, &'static str> {
         let field = self.grid.get(pos)?.get();
 

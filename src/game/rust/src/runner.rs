@@ -118,8 +118,12 @@ impl<'a> Runner<'a> {
             while self.game.active() {
                 let player = self.game.current_player();
                 let context = GameContext::new(&self.game);
-                let player_move = self.players[player].play(context)?;
-                self.game.place(&player_move)?;
+                if context.available_cells().len() > 0 {
+                    let player_move = self.players[player].play(context)?;
+                    self.game.place(&player_move)?;
+                } else {
+                    self.game.skip_player();
+                }
             }
 
             let winner = self.game.winner()?;
@@ -143,8 +147,12 @@ impl<'a> Runner<'a> {
             while self.game.active() {
                 let player = self.game.current_player();
                 let context = GameContext::new(&self.game);
-                let player_move = self.players[player].play(context)?;
-                self.game.place(&player_move)?;
+                if context.available_cells().len() > 0 {
+                    let player_move = self.players[player].play(context)?;
+                    self.game.place(&player_move)?;
+                } else {
+                    self.game.skip_player();
+                }
             }
 
             let winner = self.game.winner()?;

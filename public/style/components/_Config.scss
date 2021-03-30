@@ -1,5 +1,7 @@
 @use "../breakpoints";
 
+$input-size: 8em;
+
 .config__field {
 	margin: 10px auto;
 	display: flex;
@@ -38,6 +40,7 @@
 
 		:first-child {
 			flex: 1;
+			text-align: left;
 			margin-right: 1em;
 			font-size: 0.8em;
 
@@ -48,8 +51,14 @@
 
 		:last-child {
 			flex: none;
-			width: 8em;
+			width: $input-size;
 			text-align: center;
+		}
+
+		select:last-child {
+			// For some reason, the <select> element doesn't respect the provided width.
+			// This ratio is required to make it have the desired width.
+			width: $input-size * 5 / 4;
 		}
 	}
 

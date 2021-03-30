@@ -15,9 +15,9 @@ interface NumberInputAttrs {
 export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 	attrs,
 }) => {
-	const { min, max, onChange } = attrs;
-	let oldValue = attrs.defaultValue;
-	let value = String(attrs.defaultValue);
+	const { onChange, defaultValue } = attrs;
+	let oldValue = defaultValue;
+	let value = String(defaultValue);
 	let editing = false;
 
 	function setEditing(disabled: boolean) {
@@ -31,21 +31,21 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 		value = newValue;
 	}
 
-	function saveValueOnEnter(e: KeyboardEvent) {
+	function saveValueOnEnter(e: KeyboardEvent, min: number, max: number) {
 		if (editing && e.key === "Enter") {
 			editing = false;
-			submitValue();
+			submitValue(min, max);
 		}
 	}
 
-	function saveValue() {
+	function saveValue(min: number, max: number) {
 		if (editing) {
 			editing = false;
-			submitValue();
+			submitValue(min, max);
 		}
 	}
 
-	function submitValue() {
+	function submitValue(min: number, max: number) {
 		const newValue = restrict(Number(value), min, max);
 		if (value.trim().length && !Number.isNaN(newValue)) {
 			if (newValue !== oldValue) {
@@ -59,7 +59,7 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 
 	return {
 		view(vnode) {
-			const { label, disabled, id } = vnode.attrs;
+			const { label, disabled, id, min, max } = vnode.attrs;
 
 			if (editing) {
 				return [
@@ -72,8 +72,8 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 							(dom as HTMLInputElement).select();
 						},
 						oninput: setValue,
-						onkeypress: saveValueOnEnter,
-						onblur: saveValue,
+						onkeypress: (e: KeyboardEvent) => saveValueOnEnter(e, min, max),
+						onblur: () => saveValue(min, max),
 					}),
 				];
 			}

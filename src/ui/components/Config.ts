@@ -215,7 +215,10 @@ export function Config(): m.Component<ConfigAttrs> {
 						label: "Players:",
 						defaultValue: playersArray.length,
 						min: defaults.game.players.min,
-						max: defaults.game.players.max,
+						max: Math.min(
+							defaults.game.players.max,
+							state.game.width * state.game.height,
+						),
 						onChange: x => {
 							$state.emit("updatePlayerCountWASM", x);
 							$state.emit("updatePlayerCountJS", x);

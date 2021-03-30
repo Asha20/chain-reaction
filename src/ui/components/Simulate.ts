@@ -1,5 +1,4 @@
 import m from "mithril";
-import { PlayerRenderOptions } from "@game";
 import { GameCanvas } from "./GameCanvas";
 import { Config } from "./Config";
 import { Controls } from "./Controls";
@@ -7,29 +6,6 @@ import { Grid } from "./Grid";
 import { Tally } from "./Tally";
 import { Simulator } from "../simulator";
 import { State, StateEmitter } from "@ui/state";
-
-const players: PlayerRenderOptions[] = [
-	{
-		cellColor: "red",
-		textColor: "white",
-		shape: "circle",
-	},
-	{
-		cellColor: "blue",
-		textColor: "white",
-		shape: "star",
-	},
-	{
-		cellColor: "green",
-		textColor: "white",
-		shape: "square",
-	},
-	{
-		cellColor: "purple",
-		textColor: "white",
-		shape: "diamond",
-	},
-];
 
 interface SimulateAttrs {
 	state: State;
@@ -103,7 +79,7 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 			return m(Grid, {
 				wrapper,
 
-				canvas: m(GameCanvas, { game: simulator.game(), options: { players } }),
+				canvas: m(GameCanvas, { game: simulator.game() }),
 				controls: include.controls
 					? m(Controls, {
 							onStart: run,

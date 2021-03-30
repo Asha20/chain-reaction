@@ -1,10 +1,9 @@
 import m from "mithril";
 import { assert } from "@common/util";
-import { ChainReaction, mount, MountOptions } from "@game";
+import { ChainReaction, mount } from "@game";
 
 interface GameCanvasAttrs {
 	game: ChainReaction;
-	options: MountOptions;
 }
 
 type Nullable<T> = T | null;
@@ -13,10 +12,10 @@ export function GameCanvas(): m.Component<GameCanvasAttrs> {
 	let unsubscribe: Nullable<() => void> = null;
 
 	function attach(vnode: m.VnodeDOM<GameCanvasAttrs>) {
-		const { game, options } = vnode.attrs;
+		const { game } = vnode.attrs;
 		const canvas = vnode.dom;
 		assert(canvas instanceof HTMLCanvasElement);
-		unsubscribe = mount(game, canvas, options);
+		unsubscribe = mount(game, canvas);
 	}
 
 	return {

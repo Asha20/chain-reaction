@@ -3,7 +3,19 @@ import { assert, debounce } from "@common/util";
 import { XY } from "./common";
 import { toXY } from "./players/common";
 
-type PlayerRenderShape = "circle" | "diamond" | "square" | "star";
+const shapes = ["circle", "star", "square", "diamond"] as const;
+const colors = [
+	"red",
+	"blue",
+	"green",
+	"purple",
+	"chocolate",
+	"darkblue",
+	"dimgrey",
+	"mediumpurple",
+] as const;
+
+type PlayerRenderShape = typeof shapes[number];
 
 export interface PlayerRenderOptions {
 	cellColor: string;
@@ -11,14 +23,27 @@ export interface PlayerRenderOptions {
 	shape: PlayerRenderShape;
 }
 
-export interface MountOptions {
-	players: PlayerRenderOptions[];
+function getPlayerRenders(): readonly PlayerRenderOptions[] {
+	const players: PlayerRenderOptions[] = [];
+
+	for (let i = 0; i < colors.length; i++) {
+		for (let j = 0; j < shapes.length; j++) {
+			const shape = shapes[j];
+			const colorIndex = (i + j) % colors.length;
+			const cellColor = colors[colorIndex];
+			players.push({ shape, cellColor, textColor: "white" });
+		}
+	}
+
+	return players;
 }
 
-function validateOptions(game: ChainReaction, options: MountOptions) {
+export const playerRenderOptions = getPlayerRenders();
+
+function validateOptions(game: ChainReaction) {
 	assert(
-		options.players.length >= game.players,
-		`Game has ${game.players} players, but I only know how to render ${options.players.length}.`,
+		playerRenderOptions.length >= game.players,
+		`Game has ${game.players} players, but I only know how to render ${playerRenderOptions.length}.`,
 	);
 }
 
@@ -37,9 +62,8 @@ const defaultCanvasSize = new WeakMap<HTMLCanvasElement, number>();
 export function mount(
 	game: ChainReaction,
 	canvas: HTMLCanvasElement,
-	options: MountOptions,
 ): () => void {
-	validateOptions(game, options);
+	validateOptions(game);
 	const ctx = getContext(canvas);
 
 	function resizeCanvas() {
@@ -130,7 +154,7 @@ export function mount(
 	}
 
 	function drawCell(cx: number, cy: number, cell: OwnedCell, pos: number) {
-		const { cellColor, textColor, shape } = options.players[cell.owner];
+		const { cellColor, textColor, shape } = playerRenderOptions[cell.owner];
 
 		ctx.save();
 

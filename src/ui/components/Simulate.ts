@@ -82,7 +82,7 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 		},
 
 		view(vnode) {
-			const { state } = vnode.attrs;
+			const { state, $state } = vnode.attrs;
 
 			return m(Grid, {
 				canvas: m(GameCanvas, {
@@ -99,7 +99,7 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 					gameId: simulator.gameId(),
 					runs: state.game.runs,
 				}),
-				config: m(Config, { disabled: state.game.active }),
+				config: m(Config, { disabled: state.game.active, state, $state }),
 			});
 		},
 	};

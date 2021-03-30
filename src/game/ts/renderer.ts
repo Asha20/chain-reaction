@@ -1,6 +1,7 @@
 import { ChainReaction, CellType, OwnedCell } from "./chain_reaction";
 import { assert, debounce } from "@common/util";
 import { XY } from "./common";
+import { toXY } from "./players/common";
 
 type PlayerRenderShape = "circle" | "diamond" | "square" | "star";
 
@@ -103,12 +104,14 @@ export function mount(
 		unsubscribeFromResize();
 	};
 
+	function clearCanvas() {
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	}
+
 	function drawGridLines() {
 		// Makes the lines look smoother
 		ctx.translate(0.5, 0.5);
-
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 		for (let x = 1; x < game.width; x++) {
 			ctx.beginPath();
@@ -181,6 +184,15 @@ export function mount(
 		ctx.restore();
 	}
 
+	function drawLatestMove() {
+		if (game.latestMove !== null) {
+			const { x, y } = toXY(game.latestMove, game.width);
+
+			ctx.fillStyle = "lime";
+			ctx.fillRect(tile(x), tile(y), tile(1), tile(1));
+		}
+	}
+
 	function drawBoard() {
 		ctx.scale(tile(1), tile(1));
 		const getXY = (pos: number): XY => ({
@@ -200,6 +212,8 @@ export function mount(
 	}
 
 	function draw() {
+		clearCanvas();
+		drawLatestMove();
 		drawGridLines();
 		drawBoard();
 	}

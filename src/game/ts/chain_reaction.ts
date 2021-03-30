@@ -77,6 +77,8 @@ export class ChainReaction {
 	/** Contains sets of owned positions for each player. */
 	ownedCells: Set<number>[];
 
+	latestMove: number | null = null;
+
 	/** The next player to play. */
 	private _currentPlayer = 0;
 
@@ -159,6 +161,7 @@ export class ChainReaction {
 		this._currentPlayer = 0;
 		this.turn = 0;
 		this.alivePlayers = 0;
+		this.latestMove = null;
 		this.playerScore = this.playerScore.map(() => 0);
 		this.grid.forEach(Cell.toEmpty);
 		this.emptyCells.clear();
@@ -235,6 +238,7 @@ export class ChainReaction {
 
 		assert(cell.type === CellType.Owned);
 		this.updateScore(this.currentPlayer, 1);
+		this.latestMove = pos;
 
 		await this.hooks.run("update", this.cancelPromise.promise);
 
@@ -242,6 +246,7 @@ export class ChainReaction {
 			Cell.toEmpty(cell);
 			this.emptyCells.add(pos);
 			this.ownedCells[this._currentPlayer].delete(pos);
+			await this.hooks.run("explosionDelay", this.cancelPromise.promise);
 			await this.explode(pos, this._currentPlayer);
 		}
 

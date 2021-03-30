@@ -3,7 +3,7 @@ import { EventEmitter } from "@ui/event_emitter";
 import { JsPlayerName, WasmPlayerName } from "@game";
 import { assert } from "@common/util";
 
-interface State {
+interface MutableState {
 	game: {
 		width: number;
 		height: number;
@@ -23,6 +23,8 @@ interface State {
 	wasm: boolean;
 }
 
+export type State = Immutable<MutableState>;
+
 type StateEventEmitter = {
 	width(width: number): void;
 	height(height: number): void;
@@ -39,9 +41,11 @@ type StateEventEmitter = {
 
 	manual(manual: boolean): void;
 	wasm(wasm: boolean): void;
+
+	refresh(): void;
 };
 
-function defaultState(): State {
+function defaultState(): MutableState {
 	return {
 		game: {
 			width: 3,
@@ -63,7 +67,7 @@ function defaultState(): State {
 }
 
 const state = defaultState();
-const immutableState: Immutable<State> = state;
+const immutableState: State = state;
 
 export const defaults = {
 	game: {
@@ -104,6 +108,8 @@ export const defaults = {
 export { immutableState as state };
 
 export const $state = EventEmitter<StateEventEmitter>();
+
+export type StateEmitter = typeof $state;
 
 $state.on("width", x => (state.game.width = x));
 $state.on("height", x => (state.game.height = x));

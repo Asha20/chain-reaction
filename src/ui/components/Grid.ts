@@ -4,21 +4,24 @@ import m from "mithril";
 type AnyVnode = m.Vnode<any, any>;
 
 interface GridAttrs {
+	wrapper?: string;
 	canvas: AnyVnode;
-	controls: AnyVnode;
-	tally: AnyVnode;
-	config: AnyVnode;
+	controls?: AnyVnode;
+	tally?: AnyVnode;
+	config?: AnyVnode;
 }
 
 export const Grid: m.Component<GridAttrs> = {
 	view(vnode) {
-		const { canvas, controls, tally, config } = vnode.attrs;
+		const { wrapper, canvas, controls, tally, config } = vnode.attrs;
 
-		return [
+		const children = [
 			m(".grid--canvas", canvas),
-			m(".grid--controls", controls),
-			m(".grid--tally", tally),
-			m(".grid--config", config),
+			controls && m(".grid--controls", controls),
+			tally && m(".grid--tally", tally),
+			config && m(".grid--config", config),
 		];
+
+		return wrapper ? m(wrapper, children) : children;
 	},
 };

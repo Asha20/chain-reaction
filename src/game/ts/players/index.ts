@@ -5,11 +5,13 @@ import { PlayUserInput } from "./play_user_input";
 import { AvoidOthers } from "./avoid_others";
 import { FormChains } from "./form_chains";
 
-type Players =
+export type Players =
 	| typeof PlayRandomly
 	| typeof PlayUserInput
 	| typeof AvoidOthers
 	| typeof FormChains;
+
+export type PlayerUserInput = ReturnType<typeof PlayUserInput["create"]>;
 
 const playerFactories: Players[] = [
 	PlayRandomly,

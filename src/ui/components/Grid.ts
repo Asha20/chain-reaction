@@ -5,10 +5,11 @@ type AnyVnode = m.Vnode<any, any>;
 
 interface GridAttrs {
 	wrapper?: string;
+
 	canvas: AnyVnode;
-	controls?: AnyVnode;
-	tally?: AnyVnode;
-	config?: AnyVnode;
+	controls?: AnyVnode | undefined;
+	tally?: AnyVnode | undefined;
+	config?: AnyVnode | undefined;
 }
 
 export const Grid: m.Component<GridAttrs> = {

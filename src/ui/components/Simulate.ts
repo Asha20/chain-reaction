@@ -34,10 +34,26 @@ const players: PlayerRenderOptions[] = [
 interface SimulateAttrs {
 	state: State;
 	$state: StateEmitter;
+
+	wrapper?: string;
+
+	include?: Partial<{
+		controls: boolean;
+		tally: boolean;
+		config: boolean;
+	}>;
 }
 
+const defaultInclude: NonNullable<Required<SimulateAttrs["include"]>> = {
+	controls: true,
+	tally: true,
+	config: true,
+};
+
 export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
-	const { state, $state } = vnode.attrs;
+	const { state, $state, wrapper } = vnode.attrs;
+
+	const include = { ...defaultInclude, ...(vnode.attrs.include ?? {}) };
 
 	const wrapWithRedraw = (fn: () => unknown) => async () => {
 		const result = await fn();
@@ -85,21 +101,26 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 			const { state, $state } = vnode.attrs;
 
 			return m(Grid, {
-				canvas: m(GameCanvas, {
-					game: simulator.game(),
-					options: { players },
-				}),
-				controls: m(Controls, {
-					onStart: run,
-					onCancel: update,
-					onAdvance: advance,
-				}),
-				tally: m(Tally, {
-					tally: simulator.tally(),
-					gameId: simulator.gameId(),
-					runs: state.game.runs,
-				}),
-				config: m(Config, { disabled: state.game.active, state, $state }),
+				wrapper,
+
+				canvas: m(GameCanvas, { game: simulator.game(), options: { players } }),
+				controls: include.controls
+					? m(Controls, {
+							onStart: run,
+							onCancel: update,
+							onAdvance: advance,
+					  })
+					: undefined,
+				tally: include.tally
+					? m(Tally, {
+							tally: simulator.tally(),
+							gameId: simulator.gameId(),
+							runs: state.game.runs,
+					  })
+					: undefined,
+				config: include.config
+					? m(Config, { disabled: state.game.active, state, $state })
+					: undefined,
 			});
 		},
 	};

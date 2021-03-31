@@ -71,8 +71,10 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 				// canvas.getBoundingClientRect() and get proper values from it.
 				m.redraw();
 			}
+		},
 
-			if (!include.controls) {
+		onupdate() {
+			if (!include.controls && !state.game.active) {
 				void run();
 			}
 		},

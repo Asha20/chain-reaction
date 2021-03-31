@@ -25,11 +25,10 @@ const defaultInclude: NonNullable<Required<SimulateAttrs["include"]>> = {
 	tally: true,
 	config: true,
 };
-
 export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 	const { state, $state, wrapper } = vnode.attrs;
-
 	const include = { ...defaultInclude, ...(vnode.attrs.include ?? {}) };
+	let autoRunActivated = false;
 
 	const wrapWithRedraw = (fn: () => unknown) => async () => {
 		const result = await fn();
@@ -74,7 +73,8 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 		},
 
 		onupdate() {
-			if (!include.controls && !state.game.active) {
+			if (!include.controls && !autoRunActivated && !state.game.active) {
+				autoRunActivated = true;
 				void run();
 			}
 		},

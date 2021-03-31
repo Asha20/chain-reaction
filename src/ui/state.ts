@@ -1,7 +1,8 @@
 import { Immutable } from "@ui/util";
 import { EventEmitter } from "@ui/event_emitter";
-import { JsPlayerName, playerRenderOptions, WasmPlayerName } from "@game";
+import { JsPlayerName, WasmPlayerName } from "@game";
 import { assert } from "@common/util";
+import * as draw from "@ui/renderer/draw";
 
 interface MutableState {
 	game: {
@@ -81,7 +82,7 @@ export const defaults = {
 		},
 		players: {
 			min: 2,
-			max: playerRenderOptions.length,
+			max: draw.players.length,
 
 			js: "PlayRandomly" as JsPlayerName,
 			wasm: "PlayRandomly" as WasmPlayerName,

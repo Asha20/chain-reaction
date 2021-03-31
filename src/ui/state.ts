@@ -46,7 +46,7 @@ type StateEventEmitter = {
 	refresh(): void;
 };
 
-function defaultState(): MutableState {
+export function defaultState(): MutableState {
 	return {
 		game: {
 			width: 3,
@@ -58,8 +58,8 @@ function defaultState(): MutableState {
 			},
 			active: false,
 
-			explosionDelay: 50,
-			turnDelay: 50,
+			explosionDelay: 500,
+			turnDelay: 500,
 			gameDelay: 500,
 		},
 		manual: false,

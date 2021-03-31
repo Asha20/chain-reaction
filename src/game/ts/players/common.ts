@@ -18,5 +18,3 @@ export interface Player<
 export function toXY(pos: number, width: number): XY {
 	return { x: pos % width, y: Math.floor(pos / width) };
 }
-
-export { XY };

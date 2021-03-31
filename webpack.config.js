@@ -20,7 +20,10 @@ module.exports = function (env, argv) {
 	return {
 		context: PROJECT_ROOT,
 		mode: production ? "production" : "development",
-		entry: "./src/main.ts",
+		entry: {
+			demo: "./src/demo.ts",
+			simulator: "./src/simulator.ts",
+		},
 		devtool: production ? "source-map" : "inline-source-map",
 		output: {
 			path: path("dist"),
@@ -71,8 +74,15 @@ module.exports = function (env, argv) {
 			}),
 			new HtmlWebpackPlugin({
 				title: "Chain Reaction",
+				filename: "index.html",
 				template: "public/index.html",
-				chunks: "all",
+				chunks: ["demo"],
+			}),
+			new HtmlWebpackPlugin({
+				title: "Chain Reaction",
+				filename: "simulator.html",
+				template: "public/simulator.html",
+				chunks: ["simulator"],
 			}),
 			new ForkTsCheckerWebpackPlugin({
 				typescript: {

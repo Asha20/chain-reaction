@@ -1,6 +1,6 @@
 @use "../breakpoints";
 
-#app {
+#mount--simulator {
 	display: grid;
 	user-select: none;
 
@@ -29,6 +29,4 @@
 			"controls  config"
 			"tally     config";
 	}
-
-	padding: 20px;
 }

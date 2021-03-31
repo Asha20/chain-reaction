@@ -8,9 +8,34 @@
 			rel="stylesheet"
 			href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
 		/>
-    <title><%= htmlWebpackPlugin.options.title %></title>
+		<title><%= htmlWebpackPlugin.options.title %></title>
 	</head>
-	<body>
-    <div id="app"></div>
-  </body>
+	<body class="demo">
+		<main>
+			<h1>Chain Reaction</h1>
+
+			<p>
+				In Chain Reaction, players take turns placing cells on a grid. A player
+				can place a cell on an empty field. They can also place it on a field
+				that already contains their own cells, increasing that cell's mass. Once
+				a cell has reached critical mass (at least as much as the number of
+				neighboring fields around it), it splits into the neighboring fields,
+				converting the opponents' cells into own cells if any happened to be
+				there. The game is finished once only a single player's cells remain on
+				the board, at which point that player is declared the winner.
+			</p>
+
+			<p>
+				If you've never played the game before though, it might be easier to
+				understand the rules by giving it a try. Feel free to make a move on the
+				board below! Your cells will be red circles, while your opponent's cells
+				will be blue stars. The opponent is a computer that simply makes a move
+				on a random available spot on the board.
+			</p>
+
+			<div id="mount--demo"></div>
+
+			<a href="simulator.html">Open full simulator</a>
+		</main>
+	</body>
 </html>

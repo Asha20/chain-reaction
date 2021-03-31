@@ -1,5 +1,6 @@
 import { Playable } from "../runner";
-import { Player, XY } from "./common";
+import { XY } from "../common";
+import { Player } from "./common";
 
 interface PlayerUserInput extends Playable {
 	setCanvas(canvas: HTMLCanvasElement): void;

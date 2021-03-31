@@ -1,0 +1,27 @@
+.tally__scores {
+	display: grid;
+
+	grid-template-columns: repeat(4, 1fr);
+
+	figure {
+		display: flex;
+		height: 100%;
+		margin: 0;
+	}
+
+	img {
+		display: block;
+	}
+
+	figcaption {
+		display: flex;
+		align-items: center;
+	}
+}
+
+.tally__progress {
+	display: block;
+	width: 100%;
+	text-align: center;
+	margin-bottom: 10px;
+}

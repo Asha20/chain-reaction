@@ -31,7 +31,7 @@ export interface PlayerRenderOptions {
 	shape: PlayerRenderShape;
 }
 
-export const players = (() => {
+export const players: PlayerRenderOptions[] = (() => {
 	const result: PlayerRenderOptions[] = [];
 
 	for (let i = 0; i < colors.length; i++) {
@@ -230,7 +230,12 @@ export function resize(
 	canvas.style.marginBottom = canvas.style.marginTop = `${vMargin}px`;
 }
 
-export function getPlayerImages(): HTMLImageElement[] {
+export interface PlayerImage {
+	name: string;
+	data: string;
+}
+
+export const playerImages: PlayerImage[] = (() => {
 	const canvas = document.createElement("canvas");
 	const SIZE = 48;
 	canvas.width = SIZE;
@@ -238,14 +243,14 @@ export function getPlayerImages(): HTMLImageElement[] {
 	const ctx = canvas.getContext("2d");
 	assert(ctx);
 
+	ctx.scale(SIZE, SIZE);
 	const images = players.map(renderOptions => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.scale(SIZE, SIZE);
 		player(ctx, 0.5, 0.5, renderOptions, false, null);
-		const img = new Image();
-		img.src = canvas.toDataURL();
-		return img;
+		const data = canvas.toDataURL();
+		const name = `${renderOptions.cellColor} ${renderOptions.shape}`;
+		return { name, data };
 	});
 
 	return images;
-}
+})();

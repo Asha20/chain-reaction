@@ -97,6 +97,7 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 					? m(Tally, {
 							tally: simulator.tally(),
 							gameId: simulator.gameId(),
+							players: state.game.players.js.length,
 							runs: state.game.runs,
 					  })
 					: undefined,

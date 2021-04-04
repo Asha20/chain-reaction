@@ -1,6 +1,6 @@
 import { Playable } from "../runner";
 import { XY } from "../common";
-import { Player } from "./common";
+import { createStatefulPlayer } from "./common";
 
 interface PlayerUserInput extends Playable {
 	setCanvas(canvas: HTMLCanvasElement): void;
@@ -80,11 +80,9 @@ function create(): PlayerUserInput {
 	};
 }
 
-export const PlayUserInput: Player<"PlayUserInput", PlayerUserInput> = {
-	meta: {
-		id: "PlayUserInput",
-		name: "Human player",
-		description: "Click on the board to make a move yourself.",
-	},
-	create,
-};
+export const PlayUserInput = createStatefulPlayer(create, {
+	id: "PlayUserInput",
+	wasm: false,
+	name: "Human player",
+	description: "Click on the board to make a move yourself.",
+});

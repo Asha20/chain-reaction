@@ -1,6 +1,6 @@
 import { Playable } from "../runner";
 import { random } from "@common/util";
-import { Player, toXY } from "./common";
+import { createStatefulPlayer, toXY } from "./common";
 
 function create(): Playable {
 	let current = -1;
@@ -34,12 +34,10 @@ function create(): Playable {
 	};
 }
 
-export const FormChains: Player<"FormChains"> = {
-	meta: {
-		id: "FormChains",
-		name: "Form chains",
-		description:
-			"Avoid triggering an explosion as much as possible while also putting the maximum amount of mass into own cells.",
-	},
-	create,
-};
+export const FormChains = createStatefulPlayer(create, {
+	id: "FormChains",
+	wasm: true,
+	name: "Form chains",
+	description:
+		"Avoid triggering an explosion as much as possible while also putting the maximum amount of mass into own cells.",
+});

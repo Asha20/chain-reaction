@@ -1,6 +1,6 @@
 import { Playable } from "../runner";
 import { random } from "@common/util";
-import { Player, toXY } from "./common";
+import { createPlayer, toXY } from "./common";
 
 const singleton: Playable = {
 	play({ width, availableCells }) {
@@ -12,13 +12,9 @@ const singleton: Playable = {
 	},
 };
 
-export const PlayRandomly: Player<"PlayRandomly"> = {
-	meta: {
-		id: "PlayRandomly",
-		name: "Play randomly",
-		description: "Places a cell on a random available position.",
-	},
-	create() {
-		return singleton;
-	},
-};
+export const PlayRandomly = createPlayer(singleton, {
+	id: "PlayRandomly",
+	wasm: true,
+	name: "Play randomly",
+	description: "Places a cell on a random available position.",
+});

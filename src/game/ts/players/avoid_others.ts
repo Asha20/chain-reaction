@@ -1,5 +1,5 @@
 import { Playable } from "../runner";
-import { Player, toXY } from "./common";
+import { createPlayer, toXY } from "./common";
 
 const singleton: Playable = {
 	play({ width, availableCells, neighbors, mass }) {
@@ -16,13 +16,9 @@ const singleton: Playable = {
 	},
 };
 
-export const AvoidOthers: Player<"AvoidOthers"> = {
-	meta: {
-		id: "AvoidOthers",
-		name: "Avoid others",
-		description: "Avoids placing cells in dense areas.",
-	},
-	create() {
-		return singleton;
-	},
-};
+export const AvoidOthers = createPlayer(singleton, {
+	id: "AvoidOthers",
+	wasm: true,
+	name: "Avoid others",
+	description: "Avoids placing cells in dense areas.",
+});

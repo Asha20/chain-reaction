@@ -235,15 +235,18 @@ export interface PlayerImage {
 	data: string;
 }
 
+export const PLAYER_IMAGE_SIZE = 48;
+
 export const playerImages: PlayerImage[] = (() => {
 	const canvas = document.createElement("canvas");
-	const SIZE = 48;
-	canvas.width = SIZE;
-	canvas.height = SIZE;
+	const pixelRatio = window.devicePixelRatio;
+	const size = PLAYER_IMAGE_SIZE * pixelRatio;
+	canvas.width = size;
+	canvas.height = size;
 	const ctx = canvas.getContext("2d");
 	assert(ctx);
 
-	ctx.scale(SIZE, SIZE);
+	ctx.scale(size, size);
 	const images = players.map(renderOptions => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		player(ctx, 0.5, 0.5, renderOptions, false, null);

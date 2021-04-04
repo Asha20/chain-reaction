@@ -1,5 +1,5 @@
 import m from "mithril";
-import { playerImages } from "@ui/renderer/draw";
+import { playerImages, PLAYER_IMAGE_SIZE } from "@ui/renderer/draw";
 import { countingArray } from "@game/common";
 
 interface TallyAttrs {
@@ -15,7 +15,12 @@ export const Tally: m.Component<TallyAttrs> = {
 
 		const playerScores = countingArray(players).map(i =>
 			m("figure", { key: playerImages[i].name }, [
-				m("img", { alt: playerImages[i].name, src: playerImages[i].data }),
+				m("img", {
+					alt: playerImages[i].name,
+					width: PLAYER_IMAGE_SIZE,
+					height: PLAYER_IMAGE_SIZE,
+					src: playerImages[i].data,
+				}),
 				m("figcaption", tally[i] ?? 0),
 			]),
 		);

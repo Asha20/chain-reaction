@@ -1,3 +1,4 @@
+import { buildQueryString, parseQueryString } from "mithril";
 import { Immutable } from "@ui/util";
 import { EventEmitter } from "@ui/event_emitter";
 import { JsPlayerName, WasmPlayerName } from "@game";
@@ -68,7 +69,31 @@ export function defaultState(): MutableState {
 	};
 }
 
-const state = defaultState();
+const state: MutableState = (() => {
+	const base = defaultState();
+	const parsed = parseQueryString(location.search);
+	Object.assign(base, parsed);
+
+	/**
+	 * When parsing a querystring, numbers get turned to strings,
+	 * so ensure that these fields are actually numbers.
+	 */
+	const numberFields = [
+		"explosionDelay",
+		"turnDelay",
+		"gameDelay",
+		"width",
+		"height",
+		"runs",
+	] as const;
+
+	numberFields.forEach(key => {
+		base.game[key] = +base.game[key];
+	});
+
+	return base;
+})();
+
 const immutableState: State = state;
 
 export const defaults = {
@@ -148,3 +173,30 @@ $state.on("turnDelay", x => (state.game.turnDelay = x));
 $state.on("gameDelay", x => (state.game.gameDelay = x));
 $state.on("manual", x => (state.manual = x));
 $state.on("wasm", x => (state.wasm = x));
+
+$state.on(
+	[
+		"width",
+		"height",
+		"runs",
+		"updatePlayerCountJS",
+		"updatePlayerCountWASM",
+		"updatePlayerJS",
+		"updatePlayerWASM",
+		"active",
+		"explosionDelay",
+		"turnDelay",
+		"gameDelay",
+		"manual",
+		"wasm",
+	],
+	() => {
+		const query = buildQueryString(
+			(state as unknown) as Record<string, string>,
+		);
+		const newUrl = new URL(location.href);
+		newUrl.search = "?" + query;
+
+		history.replaceState({ path: newUrl.href }, "", newUrl.href);
+	},
+);

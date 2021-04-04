@@ -19,6 +19,7 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 	let oldValue = defaultValue;
 	let value = String(defaultValue);
 	let editing = false;
+	let focusButton = false;
 
 	function setEditing(disabled: boolean) {
 		if (!disabled) {
@@ -73,7 +74,10 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 						},
 						oninput: setValue,
 						onkeypress: (e: KeyboardEvent) => saveValueOnEnter(e, min, max),
-						onblur: () => saveValue(min, max),
+						onblur: () => {
+							focusButton = true;
+							saveValue(min, max);
+						},
 					}),
 				];
 			}
@@ -82,7 +86,19 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 				m("span", label),
 				disabled
 					? m("span", value)
-					: m("button", { onclick: () => setEditing(disabled) }, value),
+					: m(
+							"button",
+							{
+								onclick: () => setEditing(disabled),
+								oncreate(vnode) {
+									if (focusButton) {
+										(vnode.dom as HTMLButtonElement).focus();
+										focusButton = false;
+									}
+								},
+							},
+							value,
+					  ),
 			];
 		},
 	};

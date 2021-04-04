@@ -4,6 +4,7 @@ import { Config } from "./Config";
 import { Controls } from "./Controls";
 import { Grid } from "./Grid";
 import { Tally } from "./Tally";
+import { Players } from "./Players";
 import { Simulator } from "../simulator";
 import { State, StateEmitter } from "@ui/state";
 
@@ -17,6 +18,7 @@ interface SimulateAttrs {
 		controls: boolean;
 		tally: boolean;
 		config: boolean;
+		players: boolean;
 	}>;
 }
 
@@ -24,6 +26,7 @@ const defaultInclude: NonNullable<Required<SimulateAttrs["include"]>> = {
 	controls: true,
 	tally: true,
 	config: true,
+	players: true,
 };
 export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 	const { state, $state, wrapper } = vnode.attrs;
@@ -103,6 +106,9 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 					: undefined,
 				config: include.config
 					? m(Config, { disabled: state.game.active, state, $state })
+					: undefined,
+				players: include.players
+					? m(Players, { disabled: state.game.active, state, $state })
 					: undefined,
 			});
 		},

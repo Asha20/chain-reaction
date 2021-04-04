@@ -11,14 +11,16 @@
 		"canvas"
 		"controls"
 		"tally"
-		"config";
+		"config"
+		"players";
 	grid-template-columns: 1fr;
 
 	@media only screen and (min-width: breakpoints.$tablet) {
 		grid-template-areas:
-			"canvas canvas"
+			"canvas   canvas"
 			"controls controls"
-			"tally config";
+			"tally    config"
+			"tally    players";
 		grid-template-columns: repeat(2, 1fr);
 	}
 
@@ -27,6 +29,7 @@
 		grid-template-areas:
 			"canvas    config"
 			"controls  config"
-			"tally     config";
+			"tally     config"
+			"tally     players";
 	}
 }

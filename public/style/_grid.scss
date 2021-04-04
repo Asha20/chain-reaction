@@ -14,8 +14,13 @@
 	grid-area: config;
 }
 
+.grid--players {
+	grid-area: players;
+}
+
 .grid--controls,
 .grid--tally,
-.grid--config {
+.grid--config,
+.grid--players {
 	padding: 0 calc((100% - 20em) / 2);
 }

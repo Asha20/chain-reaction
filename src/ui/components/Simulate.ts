@@ -7,6 +7,7 @@ import { Tally } from "./Tally";
 import { Players } from "./Players";
 import { Simulator } from "../simulator";
 import { State, StateEmitter } from "@ui/state";
+import { playerImages } from "@ui/renderer/draw";
 
 interface SimulateAttrs {
 	state: State;
@@ -28,6 +29,7 @@ const defaultInclude: NonNullable<Required<SimulateAttrs["include"]>> = {
 	config: true,
 	players: true,
 };
+
 export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 	const { state, $state, wrapper } = vnode.attrs;
 	const include = { ...defaultInclude, ...(vnode.attrs.include ?? {}) };
@@ -46,6 +48,9 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 
 	let unsubscribeRefresh: () => void;
 	let unsubscribeActive: () => void;
+
+	const currentPlayerName = () =>
+		playerImages[simulator.game().currentPlayer].name;
 
 	return {
 		oninit() {
@@ -91,6 +96,11 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 				canvas: m(GameCanvas, { game: simulator.game() }),
 				controls: include.controls
 					? m(Controls, {
+							gameActive: state.game.active,
+							manual: state.manual,
+							currentPlayer: currentPlayerName(),
+							attachOnUpdate: fn =>
+								$state.on("update", () => fn(currentPlayerName())),
 							onStart: run,
 							onCancel: update,
 							onAdvance: advance,

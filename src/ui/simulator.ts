@@ -64,6 +64,8 @@ export function Simulator(state: State, $state: StateEmitter): Simulator {
 		runner.hooks.add("turnDelay", turnDelay);
 		runner.hooks.add("gameDelay", gameDelay);
 
+		runner.hooks.add("update", () => $state.emit("update"));
+
 		return runner;
 	}
 

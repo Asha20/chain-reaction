@@ -43,6 +43,7 @@ type StateEventEmitter = {
 	manual(manual: boolean): void;
 	wasm(wasm: boolean): void;
 
+	update(): void;
 	refresh(): void;
 };
 

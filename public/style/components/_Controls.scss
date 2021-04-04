@@ -1,4 +1,4 @@
-.controls {
+.controls__buttons {
 	display: flex;
 	width: 100%;
 
@@ -9,4 +9,8 @@
 		width: 30%;
 		height: 3em;
 	}
+}
+
+.controls__p {
+	text-align: center;
 }

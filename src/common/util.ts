@@ -57,6 +57,22 @@ export function debounce<TArgs extends unknown[]>(
 	};
 }
 
+export function throttle<TArgs extends unknown[]>(
+	limit: number,
+	callback: Fn<TArgs>,
+): Fn<TArgs> {
+	let waiting = false;
+	return function (...args) {
+		if (!waiting) {
+			callback(...args);
+			waiting = true;
+			setTimeout(() => {
+				waiting = false;
+			}, limit);
+		}
+	};
+}
+
 export interface CancelPromise<T = void> {
 	promise: Promise<T>;
 	cancelled: boolean;

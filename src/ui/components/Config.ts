@@ -1,7 +1,7 @@
 import m from "mithril";
 import { defaults, State, StateEmitter } from "@ui/state";
 import { NumberInput } from "./NumberInput";
-import { classNames } from "@ui/util";
+import { classNames, supportsWasm } from "@ui/util";
 
 interface ConfigAttrs {
 	disabled: boolean;
@@ -104,10 +104,12 @@ export function Config(): m.Component<ConfigAttrs> {
 				include.wasm &&
 				m(".config__field--2", [
 					m("label[for=use-wasm]", "Use WASM:"),
-					m("input#use-wasm[type=checkbox]", {
-						checked: state.wasm,
-						onclick: () => $state.emit("wasm", !state.wasm),
-					}),
+					supportsWasm
+						? m("input#use-wasm[type=checkbox]", {
+								checked: state.wasm,
+								onclick: () => $state.emit("wasm", !state.wasm),
+						  })
+						: m("span", "Not supported"),
 				]);
 
 			const StepByStep =

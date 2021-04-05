@@ -1,5 +1,5 @@
 import { buildQueryString, parseQueryString } from "mithril";
-import { Immutable } from "@ui/util";
+import { Immutable, supportsWasm } from "@ui/util";
 import { EventEmitter } from "@ui/event_emitter";
 import { JsPlayerName, WasmPlayerName } from "@game";
 import { assert } from "@common/util";
@@ -91,6 +91,9 @@ const state: MutableState = (() => {
 		base.game[key] = +base.game[key];
 	});
 
+	// Allow WASM only if the browser supports it.
+	base.wasm &&= supportsWasm;
+
 	return base;
 })();
 
@@ -172,7 +175,7 @@ $state.on("explosionDelay", x => (state.game.explosionDelay = x));
 $state.on("turnDelay", x => (state.game.turnDelay = x));
 $state.on("gameDelay", x => (state.game.gameDelay = x));
 $state.on("manual", x => (state.manual = x));
-$state.on("wasm", x => (state.wasm = x));
+$state.on("wasm", x => (state.wasm = supportsWasm && x));
 
 $state.on(
 	[

@@ -50,3 +50,23 @@ export const supportsWasm = (() => {
 	} catch (e) {}
 	return false;
 })();
+
+type DeepPartial<T> = {
+	[P in keyof T]?: DeepPartial<T[P]>;
+};
+
+export function overwrite<T>(base: T, obj: DeepPartial<T>): T {
+	for (const key of Object.keys(obj) as Array<keyof T>) {
+		const value = obj[key];
+
+		const newValue =
+			value && typeof value === "object" && !Array.isArray(value)
+				? overwrite(base[key], value as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+				: value;
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		base[key] = newValue as any;
+	}
+
+	return base;
+}

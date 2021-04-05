@@ -48,7 +48,7 @@ export const NumberInput: m.FactoryComponent<NumberInputAttrs> = ({
 
 	function submitValue(min: number, max: number) {
 		const newValue = restrict(Number(value), min, max);
-		if (value.trim().length && !Number.isNaN(newValue)) {
+		if (value.trim().length && Number.isInteger(newValue)) {
 			if (newValue !== oldValue) {
 				oldValue = newValue;
 				onChange(newValue);

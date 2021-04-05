@@ -109,7 +109,10 @@ export class Runner {
 					...gameContext.emptyCells,
 				]);
 
-				if (availableCells.size) {
+				if (
+					this.game.playerIsAlive(this.game.currentPlayer) &&
+					availableCells.size
+				) {
 					const pos = await Promise.race([
 						player.play(gameContext),
 						this.cancelPromise.promise as Promise<void>,

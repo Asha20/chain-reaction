@@ -118,7 +118,7 @@ impl<'a> Runner<'a> {
             while self.game.active() {
                 let player = self.game.current_player();
                 let context = GameContext::new(&self.game);
-                if context.available_cells().len() > 0 {
+                if self.game.player_is_alive(player) && context.available_cells().len() > 0 {
                     let player_move = self.players[player].play(context)?;
                     self.game.place(&player_move)?;
                 } else {
@@ -147,7 +147,7 @@ impl<'a> Runner<'a> {
             while self.game.active() {
                 let player = self.game.current_player();
                 let context = GameContext::new(&self.game);
-                if context.available_cells().len() > 0 {
+                if self.game.player_is_alive(player) && context.available_cells().len() > 0 {
                     let player_move = self.players[player].play(context)?;
                     self.game.place(&player_move)?;
                 } else {

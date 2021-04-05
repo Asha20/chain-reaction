@@ -86,6 +86,11 @@ impl ChainReaction {
         self.current_player.get()
     }
 
+    pub fn player_is_alive(&self, player: usize) -> bool {
+        self.move_count.get() < self.players.try_into().unwrap()
+            || self.owned_cells.borrow().get(player).unwrap().len() > 0
+    }
+
     fn change_owner(&self, pos: &Pos, prev_owner: Option<usize>, new_owner: Option<usize>) {
         match (prev_owner, new_owner) {
             (None, Some(new)) => {
@@ -170,7 +175,8 @@ impl ChainReaction {
     }
 
     pub fn skip_player(&self) -> () {
-        self.current_player.set((self.current_player.get() + 1) % self.players);
+        self.current_player
+            .set((self.current_player.get() + 1) % self.players);
     }
 
     pub fn can_play(&self, pos: &Pos) -> Result<bool, &'static str> {

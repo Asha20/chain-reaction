@@ -130,6 +130,10 @@ export class ChainReaction {
 			: cell.count >= this.neighbors[pos].length;
 	}
 
+	playerIsAlive(player: number): boolean {
+		return this.turn < this.players || this.playerScore[player] > 0;
+	}
+
 	cancel(): void {
 		this.cancelPromise.cancel();
 		this.hooks.clear();

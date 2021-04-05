@@ -1,5 +1,5 @@
 import { buildQueryString, parseQueryString } from "mithril";
-import { Immutable, supportsWasm } from "@ui/util";
+import { DeepPartial, Immutable, overwrite, supportsWasm } from "@ui/util";
 import { EventEmitter } from "@ui/event_emitter";
 import { JsPlayerName, WasmPlayerName } from "@game";
 import { assert } from "@common/util";
@@ -71,8 +71,9 @@ export function defaultState(): MutableState {
 
 const state: MutableState = (() => {
 	const base = defaultState();
-	const parsed = parseQueryString(location.search);
-	Object.assign(base, parsed);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const parsed = parseQueryString(location.search) as Record<string, any>;
+	overwrite(base, parsed);
 
 	/**
 	 * When parsing a querystring, numbers get turned to strings,
@@ -88,7 +89,9 @@ const state: MutableState = (() => {
 	] as const;
 
 	numberFields.forEach(key => {
-		base.game[key] = +base.game[key];
+		if (parsed.game?.[key] !== undefined) {
+			base.game[key] = +parsed.game[key];
+		}
 	});
 
 	// Allow WASM only if the browser supports it.
@@ -194,12 +197,51 @@ $state.on(
 		"wasm",
 	],
 	() => {
-		const query = buildQueryString(
-			(state as unknown) as Record<string, string>,
-		);
+		const diff = difference(defaultState(), state);
+
+		const query = buildQueryString((diff as unknown) as Record<string, string>);
 		const newUrl = new URL(location.href);
 		newUrl.search = "?" + query;
 
 		history.replaceState({ path: newUrl.href }, "", newUrl.href);
 	},
 );
+
+function equals(a: unknown, b: unknown): boolean {
+	if (a === null || b === null) {
+		return a === b;
+	}
+
+	if (Array.isArray(a) && Array.isArray(b)) {
+		return a.length === b.length && a.every((x, i) => equals(x, b[i]));
+	}
+
+	if (typeof a === "object" && typeof b === "object") {
+		const aObject = a as Record<string, unknown>;
+		const bObject = b as Record<string, unknown>;
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		const aKeys = Object.keys(aObject);
+		return (
+			aKeys.length === Object.keys(bObject).length &&
+			aKeys.every(key => equals(aObject[key], bObject[key]))
+		);
+	}
+
+	return a === b;
+}
+
+function difference<T>(a: T, b: T): DeepPartial<T> {
+	const result: DeepPartial<T> = {};
+
+	for (const key of Object.keys(b) as Array<keyof T>) {
+		if (!equals(a[key], b[key])) {
+			if (typeof b[key] === "object" && b[key] && !Array.isArray(b[key])) {
+				result[key] = difference(a[key], b[key]);
+			} else {
+				result[key] = b[key];
+			}
+		}
+	}
+
+	return result;
+}

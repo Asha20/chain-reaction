@@ -30,7 +30,8 @@ export const Tally: m.Component<TallyAttrs> = {
 		return m(".tally", [
 			m("h2", "Tally"),
 
-			showProgress && m("span.tally__progress", `Progress: ${gameId}/${runs}`),
+			showProgress &&
+				m("span.tally__progress", `Games completed: ${gameId}/${runs}`),
 
 			m("section.tally__scores", playerScores),
 		]);

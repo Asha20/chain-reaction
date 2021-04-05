@@ -246,6 +246,7 @@ export class ChainReaction {
 			Cell.toEmpty(cell);
 			this.emptyCells.add(pos);
 			this.ownedCells[this._currentPlayer].delete(pos);
+			this.latestMove = null;
 			await this.hooks.run("explosionDelay", this.cancelPromise.promise);
 			await this.explode(pos, this._currentPlayer);
 		}

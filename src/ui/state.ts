@@ -97,6 +97,9 @@ const state: MutableState = (() => {
 	// Allow WASM only if the browser supports it.
 	base.wasm &&= supportsWasm;
 
+	// The game should always be inactive on page load.
+	base.game.active = false;
+
 	return base;
 })();
 
@@ -198,6 +201,7 @@ $state.on(
 	],
 	() => {
 		const diff = difference(defaultState(), state);
+		delete diff.game?.active;
 
 		const query = buildQueryString((diff as unknown) as Record<string, string>);
 		const newUrl = new URL(location.href);

@@ -18,6 +18,7 @@ interface ConfigAttrs {
 		turnDelay: boolean;
 		gameDelay: boolean;
 		players: boolean;
+		restoreDefaults: boolean;
 	}>;
 }
 
@@ -31,6 +32,7 @@ const defaultInclude: NonNullable<Required<ConfigAttrs["include"]>> = {
 	turnDelay: true,
 	gameDelay: true,
 	players: true,
+	restoreDefaults: true,
 };
 
 export function Config(): m.Component<ConfigAttrs> {
@@ -178,6 +180,20 @@ export function Config(): m.Component<ConfigAttrs> {
 					}),
 				);
 
+			const RestoreDefaults =
+				include.restoreDefaults &&
+				m(
+					".config__field--1",
+					m(
+						"button",
+						{
+							disabled,
+							onclick: () => $state.emit("restoreDefaults"),
+						},
+						"Restore defaults",
+					),
+				);
+
 			return m(".config", [
 				m("h2", "Configuration"),
 
@@ -195,6 +211,7 @@ export function Config(): m.Component<ConfigAttrs> {
 				]),
 
 				NumberOfPlayers,
+				RestoreDefaults,
 			]);
 		},
 	};

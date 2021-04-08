@@ -1,4 +1,4 @@
-import { buildQueryString, parseQueryString } from "mithril";
+import m from "mithril";
 import { DeepPartial, Immutable, overwrite, supportsWasm } from "@ui/util";
 import { EventEmitter } from "@ui/event_emitter";
 import { JsPlayerName, WasmPlayerName } from "@game";
@@ -46,6 +46,7 @@ type StateEventEmitter = {
 
 	update(): void;
 	refresh(): void;
+	restoreDefaults(): void;
 };
 
 export function defaultState(): MutableState {
@@ -72,7 +73,7 @@ export function defaultState(): MutableState {
 const state: MutableState = (() => {
 	const base = defaultState();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const parsed = parseQueryString(location.search) as Record<string, any>;
+	const parsed = m.parseQueryString(location.search) as Record<string, any>;
 	overwrite(base, parsed);
 
 	/**
@@ -182,6 +183,9 @@ $state.on("turnDelay", x => (state.game.turnDelay = x));
 $state.on("gameDelay", x => (state.game.gameDelay = x));
 $state.on("manual", x => (state.manual = x));
 $state.on("wasm", x => (state.wasm = supportsWasm && x));
+$state.on("restoreDefaults", () => {
+	location.search = "";
+});
 
 $state.on(
 	[
@@ -203,7 +207,9 @@ $state.on(
 		const diff = difference(defaultState(), state);
 		delete diff.game?.active;
 
-		const query = buildQueryString((diff as unknown) as Record<string, string>);
+		const query = m.buildQueryString(
+			(diff as unknown) as Record<string, string>,
+		);
 		const newUrl = new URL(location.href);
 		newUrl.search = "?" + query;
 

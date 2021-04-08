@@ -11,11 +11,20 @@ interface GridAttrs {
 	tally?: AnyVnode | undefined;
 	config?: AnyVnode | undefined;
 	players?: AnyVnode | undefined;
+	playerInfo?: AnyVnode | undefined;
 }
 
 export const Grid: m.Component<GridAttrs> = {
 	view(vnode) {
-		const { wrapper, canvas, controls, tally, config, players } = vnode.attrs;
+		const {
+			wrapper,
+			canvas,
+			controls,
+			tally,
+			config,
+			players,
+			playerInfo,
+		} = vnode.attrs;
 
 		const children = [
 			m(".grid--canvas", canvas),
@@ -23,6 +32,7 @@ export const Grid: m.Component<GridAttrs> = {
 			tally && m(".grid--tally", tally),
 			config && m(".grid--config", config),
 			players && m(".grid--players", players),
+			playerInfo && m(".grid--player-info", playerInfo),
 		];
 
 		return wrapper ? m(wrapper, children) : children;

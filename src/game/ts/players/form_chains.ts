@@ -39,5 +39,5 @@ export const FormChains = createStatefulPlayer(create, {
 	wasm: true,
 	name: "Form chains",
 	description:
-		"Avoid triggering an explosion as much as possible while also putting the maximum amount of mass into own cells.",
+		"Avoids triggering an explosion as much as possible while also putting the maximum amount of mass into own cells.",
 });

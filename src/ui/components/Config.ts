@@ -41,16 +41,6 @@ export function Config(): m.Component<ConfigAttrs> {
 
 			const include = { ...defaultInclude, ...(vnode.attrs.include ?? {}) };
 
-			const boardSettings =
-				include.width ||
-				include.height ||
-				include.runs ||
-				include.explosionDelay ||
-				include.turnDelay ||
-				include.gameDelay ||
-				include.wasm ||
-				include.manual;
-
 			const playersArray = state.wasm
 				? state.game.players.wasm
 				: state.game.players.js;
@@ -190,7 +180,6 @@ export function Config(): m.Component<ConfigAttrs> {
 
 			return m(".config", [
 				m("h2", "Configuration"),
-				boardSettings && m("h3", "Board settings"),
 
 				BoardWidth,
 				BoardHeight,

@@ -8,6 +8,8 @@ import { Players } from "./Players";
 import { Simulator } from "../simulator";
 import { State, StateEmitter } from "@ui/state";
 import { playerImages } from "@ui/renderer/draw";
+import { PlayerInfo } from "./PlayerInfo";
+import { players } from "@game";
 
 interface SimulateAttrs {
 	state: State;
@@ -20,6 +22,7 @@ interface SimulateAttrs {
 		tally: boolean;
 		config: boolean;
 		players: boolean;
+		playerInfo: boolean;
 	}>;
 }
 
@@ -28,6 +31,7 @@ const defaultInclude: NonNullable<Required<SimulateAttrs["include"]>> = {
 	tally: true,
 	config: true,
 	players: true,
+	playerInfo: true,
 };
 
 export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
@@ -120,6 +124,7 @@ export const Simulate: m.FactoryComponent<SimulateAttrs> = function (vnode) {
 				players: include.players
 					? m(Players, { disabled: state.game.active, state, $state })
 					: undefined,
+				playerInfo: include.playerInfo ? m(PlayerInfo, { players }) : undefined,
 			});
 		},
 	};

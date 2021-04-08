@@ -61,8 +61,8 @@ export function defaultState(): MutableState {
 			},
 			active: false,
 
-			explosionDelay: 500,
-			turnDelay: 500,
+			explosionDelay: 100,
+			turnDelay: 100,
 			gameDelay: 500,
 		},
 		manual: false,
@@ -110,11 +110,11 @@ export const defaults = {
 	game: {
 		width: {
 			min: 2,
-			max: 30,
+			max: 50,
 		},
 		height: {
 			min: 2,
-			max: 30,
+			max: 50,
 		},
 		players: {
 			min: 2,
@@ -128,15 +128,15 @@ export const defaults = {
 			max: 10_000,
 		},
 		explosionDelay: {
-			min: 10,
+			min: 5,
 			max: 50_000,
 		},
 		turnDelay: {
-			min: 10,
+			min: 5,
 			max: 50_000,
 		},
 		gameDelay: {
-			min: 10,
+			min: 5,
 			max: 50_000,
 		},
 	},

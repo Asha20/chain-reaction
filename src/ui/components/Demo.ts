@@ -22,7 +22,13 @@ export const Demo: m.Component = {
 		return m(Simulate, {
 			state: demoState,
 			$state: EventEmitter(),
-			include: { config: false, controls: false, tally: false, players: false },
+			include: {
+				config: false,
+				controls: false,
+				tally: false,
+				players: false,
+				playerInfo: false,
+			},
 		});
 	},
 };
